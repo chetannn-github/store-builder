@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          # Yahan image dynamic hogi (Wordpress ya Medusa)
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.store.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: "{{ .Release.Name }}-db"  # Ye DB service ka naam hai
+            - name: WORDPRESS_DB_USER
+              value: "user123"                 # DB deployment se match hona chahiye
+            - name: WORDPRESS_DB_PASSWORD
+              value: "pass123"                 # DB deployment se match hona chahiye
+            - name: WORDPRESS_DB_NAME
+              value: "wordpress"

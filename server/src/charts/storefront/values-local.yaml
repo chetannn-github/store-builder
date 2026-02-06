@@ -1,0 +1,29 @@
+# Default values
+replicaCount: 1
+
+image:
+  repository: wordpress # Default image (WooCommerce)
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+store:
+  type: "woocommerce" # Backend will change this to 'medusa' if needed
+  port: 80 # Container port
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "store.localhost" # Placeholder, backend will override this
+
+# Hum resources limit set kar rahe hain taaki tumhara laptop hang na ho
+resources: 
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
