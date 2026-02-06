@@ -1,6 +1,6 @@
 import Store from '../models/store.model.js';
 import crypto from "crypto";
-import { createK8sNamespace, deployStoreHelmChart } from '../services/k8sServices.js';
+import { createK8sNamespace, deleteStoreResources, deployStoreHelmChart } from '../services/k8sServices.js';
 
 
 
@@ -68,3 +68,41 @@ export const createStore = async (req, res) => {
   }
 };
 
+
+
+
+
+export const deleteStore = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const store = await Store.findById(id);
+
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "Store not found",
+      });
+    }
+
+    store.status = "DELETING";
+    await store.save();
+
+    await deleteStoreResources(store.namespace);
+    await Store.findByIdAndDelete(id);
+
+    console.log("--- Store Deleted Successfully ---");
+
+    return res.status(200).json({
+      success: true,
+      message: "Store deleted successfully",
+    });
+
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete store",
+      error: error.message
+    });
+  }
+};

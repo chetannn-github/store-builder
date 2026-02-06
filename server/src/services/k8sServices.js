@@ -57,3 +57,26 @@ export const deployStoreHelmChart = async (namespace, storeName, storeType, doma
     throw new Error(`Helm installation failed: ${error.message}`);
   }
 };
+
+
+
+export const deleteStoreResources = async (namespace) => {
+  try {
+    console.log(`[K8s] Deleting namespace: ${namespace}...`);
+    const command = `kubectl delete namespace ${namespace} --wait=false`; 
+  
+    await execPromise(command);
+    
+    console.log(`[K8s] Delete command issued for ${namespace}`);
+    return true;
+
+  } catch (error) {
+    if (error.stderr && error.stderr.includes("not found")) {
+      console.log(`[K8s] Namespace ${namespace} already deleted.`);
+      return true;
+    }
+    
+    console.error(`[K8s] Delete Error:`, error.message);
+    throw error;
+  }
+};
