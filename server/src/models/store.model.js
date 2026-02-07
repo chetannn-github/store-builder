@@ -23,6 +23,11 @@ const storeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    
+    isCustomDomain: { 
+      type: Boolean, 
+      default: false 
+    },
     status: {
       type: String,
       enum: ["PROVISIONING", "READY", "FAILED", "DELETING"],

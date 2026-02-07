@@ -1,12 +1,13 @@
 import Store from '../models/store.model.js';
 import crypto from "crypto";
 import { createK8sNamespace, deleteStoreResources, deployStoreHelmChart } from '../services/k8sServices.js';
+import { getStoreDomain } from '../utils/helper.js';
 
 
 
 export const createStore = async (req, res) => {
   try {
-    const { name, type } = req.body;
+    const { name, type, customDomain } = req.body; 
 
     if (!name || !type) {
       return res.status(400).json({
@@ -21,16 +22,16 @@ export const createStore = async (req, res) => {
         message: "Type must be either woocommerce or medusa",
       });
     }
-
     const suffix = crypto.randomBytes(3).toString("hex");
     const namespace = `store-${suffix}`;
-    const domain = `${namespace}.localhost`;
+    const { domain, isCustom}  = getStoreDomain(namespace,customDomain);
 
     const store = await Store.create({
       name,
       type,
       namespace,
-      domain,
+      domain, 
+      isCustomDomain: isCustom,
       status: "PROVISIONING",
     });
 
