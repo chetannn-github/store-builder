@@ -1,0 +1,37 @@
+replicaCount: 1
+
+image:
+  repository: chetannn/medusa-backend
+  tag: v2
+  pullPolicy: IfNotPresent
+
+store:
+  port: 9000 # Medusa Port
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  host: "medusa.localhost"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+persistence:
+  enabled: true
+  size: 1Gi
+
+env:
+  - name: DATABASE_TYPE
+    value: "postgres"
+  - name: NODE_ENV
+    value: "development"
+  - name: JWT_SECRET
+    value: "supersecret"
+  - name: COOKIE_SECRET
+    value: "supersecret"

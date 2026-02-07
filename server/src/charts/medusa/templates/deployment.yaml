@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: medusa-backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 9000
+          env:
+            - name: DATABASE_TYPE
+              value: "postgres"
+            # DB URL
+            - name: DATABASE_URL
+              value: "postgres://postgres:postgres@{{ .Release.Name }}-db:5432/medusa-store"
+            # Redis URL (Yeh Naya Hai)
+            - name: REDIS_URL
+              value: "redis://{{ .Release.Name }}-db:6379"
+            - name: NODE_ENV
+              value: "development"
+            - name: JWT_SECRET
+              value: "supersecret"
+            - name: COOKIE_SECRET
+              value: "supersecret"
+          
+          # Liveness Probe (Health Check)
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 9000
+            initialDelaySeconds: 120 # Thoda time do start hone ke liye
+            periodSeconds: 10
+            failureThreshold: 5
+          
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
