@@ -22,9 +22,20 @@ export const createStore = async (req, res) => {
         message: "Type must be either woocommerce or medusa",
       });
     }
+
+    if (customDomain) {
+      const existingStore = await Store.findOne({ domain: customDomain });
+      if (existingStore) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Domain '${customDomain}' is already taken. Please choose another one.` 
+        });
+      }
+    }
+
     const suffix = crypto.randomBytes(3).toString("hex");
     const namespace = `store-${suffix}`;
-    const { domain, isCustom}  = getStoreDomain(namespace,customDomain);
+    const { domain, isCustom }  = getStoreDomain(namespace,customDomain);
 
     const store = await Store.create({
       name,

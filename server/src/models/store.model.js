@@ -22,11 +22,13 @@ const storeSchema = new mongoose.Schema(
     domain: {
       type: String,
       required: true,
+      unique: true,
+      trim: true
     },
-    
+
     isCustomDomain: { 
       type: Boolean, 
-      default: false 
+      default: false
     },
     status: {
       type: String,
