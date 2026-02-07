@@ -7,7 +7,7 @@ import { getStoreDomain } from '../utils/helper.js';
 
 export const createStore = async (req, res) => {
   try {
-    const { name, type, customDomain } = req.body; 
+    const { name, type, customDomain, email, password } = req.body; 
 
     if (!name || !type) {
       return res.status(400).json({
@@ -33,6 +33,14 @@ export const createStore = async (req, res) => {
       }
     }
 
+
+    if(type === 'medusa' && (!email || !password)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide email and password !",
+      });
+    }
+
     const suffix = crypto.randomBytes(3).toString("hex");
     const namespace = `store-${suffix}`;
     const { domain, isCustom }  = getStoreDomain(namespace,customDomain);
@@ -49,7 +57,7 @@ export const createStore = async (req, res) => {
     console.log("--- Starting Provisioning ---");
     
     await createK8sNamespace(namespace);
-    await deployStoreHelmChart(namespace, name, type, domain);
+    await deployStoreHelmChart(namespace, name, type, domain,email,password);
 
     store.status = "READY";
     await store.save();

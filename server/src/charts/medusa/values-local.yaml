@@ -35,3 +35,7 @@ env:
     value: "supersecret"
   - name: COOKIE_SECRET
     value: "supersecret"
+
+adminUser:
+  email: "admin@default.com"
+  password: "password123"

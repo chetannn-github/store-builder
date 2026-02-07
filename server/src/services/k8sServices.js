@@ -28,10 +28,10 @@ export const createK8sNamespace = async (namespaceName) => {
 
 
 
-export const deployStoreHelmChart = async (namespace, storeName, storeType, domain) => {
+export const deployStoreHelmChart = async (namespace, storeName, storeType, domain,email,password) => {
   try {
     console.log(`[Helm] Deploying ${storeType} for ${storeName}...`);
-    const command = getStoreCreationCommand(namespace,storeType,domain);
+    const command = getStoreCreationCommand(namespace,storeType,domain,email,password);
     const { stdout, stderr } = await execPromise(command);
 
     console.log(`[Helm] Success: ${stdout}`);

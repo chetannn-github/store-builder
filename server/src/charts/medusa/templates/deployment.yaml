@@ -21,13 +21,12 @@ spec:
           ports:
             - name: http
               containerPort: 9000
+          
           env:
             - name: DATABASE_TYPE
               value: "postgres"
-            # DB URL
             - name: DATABASE_URL
               value: "postgres://postgres:postgres@{{ .Release.Name }}-db:5432/medusa-store"
-            # Redis URL (Yeh Naya Hai)
             - name: REDIS_URL
               value: "redis://{{ .Release.Name }}-db:6379"
             - name: NODE_ENV
@@ -36,13 +35,32 @@ spec:
               value: "supersecret"
             - name: COOKIE_SECRET
               value: "supersecret"
+           
+            - name: ADMIN_EMAIL
+              value: {{ .Values.adminUser.email | quote }}
+            - name: ADMIN_PASSWORD
+              value: {{ .Values.adminUser.password | quote }}
+
+    
+          command: ["/bin/sh"]
+          args:
+            - "-c"
+            - |
+              echo "1. Running Migrations..."
+              npx medusa db:migrate 
+              
+              echo "2. Creating Admin User..."
+              npx medusa user -e $ADMIN_EMAIL -p $ADMIN_PASSWORD || true
+              
+              echo "3. Starting Medusa Server..."
+              npm start
           
-          # Liveness Probe (Health Check)
+          # Health Check
           livenessProbe:
             httpGet:
               path: /health
               port: 9000
-            initialDelaySeconds: 120 # Thoda time do start hone ke liye
+            initialDelaySeconds: 120
             periodSeconds: 10
             failureThreshold: 5
           
