@@ -1,8 +1,7 @@
 import { exec } from 'child_process';
 import util from 'util';
-import path from 'path';
 import { coreApi } from '../config/kubernetes.js';
-import { fileURLToPath } from 'url';
+import { getStoreCreationCommand, getStoreDeletionCommand } from '../utils/commands.js';
 
 const execPromise = util.promisify(exec);
 
@@ -28,27 +27,13 @@ export const createK8sNamespace = async (namespaceName) => {
 };
 
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export const deployStoreHelmChart = async (namespace, storeName, storeType, domain) => {
   try {
     console.log(`[Helm] Deploying ${storeType} for ${storeName}...`);
-
-   
-   const chartPath = path.resolve(__dirname, '../charts/storefront');
-    const releaseName = namespace;
-
-    
-    const command = `helm install ${releaseName} ${chartPath} \
-      --namespace ${namespace} \
-      --set ingress.host=${domain} \
-      --set store.type=${storeType} \
-      --values ${chartPath}/values-local.yaml \
-      --wait`;
-
+    const command = getStoreCreationCommand(namespace,storeType,domain);
     const { stdout, stderr } = await execPromise(command);
-    
+
     console.log(`[Helm] Success: ${stdout}`);
     return true;
 
@@ -63,7 +48,7 @@ export const deployStoreHelmChart = async (namespace, storeName, storeType, doma
 export const deleteStoreResources = async (namespace) => {
   try {
     console.log(`[K8s] Deleting namespace: ${namespace}...`);
-    const command = `kubectl delete namespace ${namespace} --wait=false`; 
+    const command = getStoreDeletionCommand(namespace);
   
     await execPromise(command);
     
