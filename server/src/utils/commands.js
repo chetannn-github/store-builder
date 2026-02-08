@@ -5,32 +5,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-
-
-export const getStoreCreationCommand = (namespace, storeType,domain, email, password) => {
-    const isProduction = process.env.NODE_ENV === 'production';
-    const ingressClass = isProduction ? "traefik" : "nginx"; 
+export const getStoreCreationCommand = (namespace, storeType, domain, email, password) => {
+    
     const chartFolder = (storeType === "medusa") ? "medusa" : "storefront"; 
     const chartPath = path.resolve(__dirname, `../charts/${chartFolder}`);
     const releaseName = namespace;
-    const baseDomain = process.env.BASE_DOMAIN || "localhost";
-    const finalDomain = `store-${domain}.${baseDomain}`;
-
 
     const adminEmail = email || "admin@default.com";
     const adminPass = password || "secret123";
 
-   
-
-    const storeCreationCommand = `helm install ${releaseName} ${chartPath} \
-    --namespace ${namespace} \
-    --create-namespace \
-    --set ingress.className="${ingressClass}" \
-    --set ingress.host="${finalDomain}" \
-    --set wordpress.siteUrl="http://${finalDomain}" \
-    --set service.type="ClusterIP" \
-    --set store.type=${storeType} \
-    --wait`;
+    let storeCreationCommand = `helm install ${releaseName} ${chartPath} \
+      --namespace ${namespace} \
+      --create-namespace \
+      --set ingress.host=${domain} \
+      --set store.type=${storeType} \
+      --values ${chartPath}/values-local.yaml \
+      --wait`;
 
     if (storeType === "medusa") {
       storeCreationCommand += ` \
