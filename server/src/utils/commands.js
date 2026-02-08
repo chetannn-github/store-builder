@@ -14,7 +14,7 @@ export const getStoreCreationCommand = (namespace, storeType,domain, email, pass
     const chartPath = path.resolve(__dirname, `../charts/${chartFolder}`);
     const releaseName = namespace;
     const baseDomain = process.env.BASE_DOMAIN || "localhost";
-    const finalDomain = `store-${storeName}.${baseDomain}`;
+    const finalDomain = `store-${domain}.${baseDomain}`;
 
 
     const adminEmail = email || "admin@default.com";
