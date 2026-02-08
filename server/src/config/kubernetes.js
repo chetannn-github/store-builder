@@ -3,8 +3,7 @@ import * as k8s from '@kubernetes/client-node';
 const kc = new k8s.KubeConfig();
 
 try {
-  if (process.env.NODE_ENV === 'production') kc.loadFromCluster();
-  else kc.loadFromDefault();
+  kc.loadFromDefault();
   
   console.log(' Kubernetes client initialized');
 } catch (error) {
