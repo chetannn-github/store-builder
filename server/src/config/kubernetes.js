@@ -4,11 +4,9 @@ const kc = new k8s.KubeConfig();
 
 try {
   kc.loadFromDefault();
-  
   console.log(' Kubernetes client initialized');
 } catch (error) {
   console.error('Kubernetes client initialization failed:', error.message);
-  console.log(' Make sure minikube is running: minikube start');
 }
 
 
