@@ -6,7 +6,7 @@ const router = express.Router();
 
 const createStoreLimiter = rateLimit({
   windowMs: 30 * 60 * 1000,
-  max: 2,
+  max: 212,
   message: 'Too many stores created, please try again later'
 });
 
