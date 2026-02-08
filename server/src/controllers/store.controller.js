@@ -57,7 +57,9 @@ export const createStore = async (req, res) => {
     console.log("--- Starting Provisioning ---");
     
     await createK8sNamespace(namespace);
-    await deployStoreHelmChart(namespace, name, type, domain,email,password);
+    const baseDomain = process.env.BASE_DOMAIN || "localhost";
+    const finalDomain = `store-${domain}.${baseDomain}`;
+    await deployStoreHelmChart(namespace, name, type, finalDomain,email,password);
 
     store.status = "READY";
     await store.save();
@@ -68,7 +70,7 @@ export const createStore = async (req, res) => {
       success: true,
       message: "Store created successfully",
       data: store,
-      storeUrl: `http://${domain}`
+      storeUrl: `http://${finalDomain}`
     });
    
   } catch (error) {
