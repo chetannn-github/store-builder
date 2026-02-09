@@ -7,7 +7,8 @@ image:
 
 store:
   port: 9000 # Medusa Port
-
+  type: "medusa"
+  
 service:
   type: ClusterIP
   port: 80
