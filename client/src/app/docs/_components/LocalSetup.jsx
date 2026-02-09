@@ -76,7 +76,7 @@ BASE_DOMAIN=localhost`}
         <p className="mb-3 text-sm text-muted-foreground">Start the frontend and backend in separate terminals.</p>
         <CodeBlock
           code={`# Terminal 1 — Frontend
-cd dashboard
+cd client
 npm run dev
 
 # Terminal 2 — Backend
