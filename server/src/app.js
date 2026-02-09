@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(helmet());
 app.use(
   cors({
-    origin: ["https://store-builder-eight.vercel.app"],
+    origin: ["https://store-builder-eight.vercel.app", "http://localhost:3000"],
     credentials : trusted
   })
 );
