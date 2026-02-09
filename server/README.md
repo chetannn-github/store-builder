@@ -1,7 +1,6 @@
 # 🚀 ONLINE STORE BUILDER
 
-ONLINE STORE BUILDER is a practical, production-ready SaaS platform that helps you create and manage **isolated online stores on Kubernetes**.  
-It works smoothly in both **Local (Minikube)** and **Production (AWS EC2 + K3s)** environments using a single codebase.
+Online Store Builder is a tool that helps you create and manage **isolated online stores on Kubernetes**. It runs seamlessly on both **Local (Minikube)** and **Production (AWS EC2 + K3s)** environments using a single codebase.
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
 ![Tech](https://img.shields.io/badge/Stack-Node.js%20%7C%20Kubernetes%20%7C%20Helm-blue)
@@ -10,7 +9,7 @@ It works smoothly in both **Local (Minikube)** and **Production (AWS EC2 + K3s)*
 
 ## 🌟 What does this platform do?
 
-This is not just a deployment script. ONLINE STORE BUILDER is designed like a real SaaS system, focusing on isolation, scalability, and cleanup.
+It lets you create a fully working online store in just one click. Simply enter a store name, and you instantly get a live link to your new website—no technical setup required.
 
 ### Key Highlights
 
@@ -159,14 +158,9 @@ Make sure:
 Helm makes it easy to package everything related to a store (service, ingress, database config) together.  
 It also allows passing dynamic values like domains and credentials cleanly at runtime.
 
-### Storage Cleanup (PVC Handling)
-By default, Kubernetes keeps storage even after deleting apps.  
-For a SaaS system, this causes unused storage to pile up.  
-ONLINE STORE BUILDER explicitly deletes PVCs when a store is removed.
 
 ### Why `nip.io`?
-Managing real DNS records is slow and complex for an MVP.  
-`nip.io` gives instant wildcard domains mapped to an IP address, making store creation fast and simple.
+I didn't have a registered domain name. nip.io allowed us to turn our server's IP address into a working website link instantly, so we could build and test the platform without buying a domain.
 
 ---
 
