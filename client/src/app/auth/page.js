@@ -17,19 +17,15 @@ import {
 
 
 import { useToast } from "@/app/_hooks/useToast";
+import { useAuth } from "../_hooks/useAuth";
 
 const Auth = () => {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
- const login = () => {};
-  const signup = () => {};
-
-  const isAuthenticated = false;
-  const { toast } = useToast();
   const router = useRouter();
+
+  const { isAuthenticated , handleLogin, handleSignup, isAuthenticating : loading } = useAuth()
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -39,34 +35,9 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    if(mode === "login")  await handleLogin(email, password)
+    else await handleSignup(email, password);
 
-    await new Promise((r) => setTimeout(r, 600));
-
-    const result =
-      mode === "login"
-        ? login(email, password)
-        : signup(email, password);
-
-    if (result.success) {
-      toast({
-        title: mode === "login" ? "Welcome back!" : "Account created!",
-        description:
-          mode === "login"
-            ? "You've been logged in."
-            : "Your account has been created successfully.",
-      });
-
-      router.replace("/dashboard");
-    } else {
-      toast({
-        title: "Error",
-        description: result.error,
-        variant: "destructive",
-      });
-    }
-
-    setLoading(false);
   };
 
   return (
