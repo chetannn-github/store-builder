@@ -81,10 +81,9 @@ cd ../client && npm install && npm run build`}
         <p className="mb-3 text-sm text-muted-foreground">Set up the production environment variables.</p>
         <CodeBlock
           code={`NODE_ENV=production
-             MONGO_URI="" // MONGO ATLAS CONNECTION URI
-            PORT=5000
-            
-            JWT_SECRET="supersecretkey123"
+MONGO_URI="" // MONGO ATLAS CONNECTION URI
+PORT=5000
+JWT_SECRET="supersecretkey123"
 BASE_DOMAIN=<YOUR_EC2_IP>.nip.io`}
           language="env"
         />

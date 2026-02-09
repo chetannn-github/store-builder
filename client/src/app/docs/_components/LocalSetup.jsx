@@ -66,11 +66,11 @@ cd ../client && npm install`}
         <p className="mb-3 text-sm text-muted-foreground">Create a <code className="rounded bg-secondary px-1.5 py-0.5 font-mono text-xs">.env</code> file in the server directory.</p>
         <CodeBlock
           code={`
-            MONGO_URI=""  // MONGO ATLAS CONNECTION URI
-            PORT=5000
-            NODE_ENV="DEVELOPMENT"
-            JWT_SECRET="supersecretkey123"
-            BASE_DOMAIN=localhost`}
+MONGO_URI=""  // MONGO ATLAS CONNECTION URI
+PORT=5000
+NODE_ENV="DEVELOPMENT"
+JWT_SECRET="supersecretkey123"
+BASE_DOMAIN=localhost`}
           language="env"
         />
       </div>
