@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Box, Menu, X, LogOut } from "lucide-react";
 import { Button } from "../_components/ui/button";
-import { cn } from "../lib/utils";
+import { cn } from "../../lib/utils";
 
 
 const Navbar = () => {
