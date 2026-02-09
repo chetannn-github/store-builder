@@ -8,14 +8,15 @@ import './config/kubernetes.js';
 import storeRoutes from './routes/store.routes.js'; 
 import authRoutes from './routes/auth.routes.js';
 import { NODE_ENV } from "./config/env.js";
+import { trusted } from "mongoose";
 
 const app = express();
 app.use(express.json());
 app.use(helmet());
 app.use(
   cors({
-    origin: "https://store-builder-eight.vercel.app",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    origin: ["https://store-builder-eight.vercel.app"],
+    credentials : trusted
   })
 );
 app.use(express.urlencoded({ extended: true }));
