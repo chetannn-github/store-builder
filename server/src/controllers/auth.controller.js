@@ -17,9 +17,9 @@ export const signup = async (req, res) => {
     const user = await User.create({ email, password: hashedPassword });
     const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET);
 
-    res.status(201).json({ token, user: { id: user._id, email: user.email } });
+    res.status(201).json({success : true, token, user: { id: user._id, email: user.email } });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({success : false, error: error.message });
   }
 };
 
@@ -36,8 +36,20 @@ export const login = async (req, res) => {
 
     const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: "24h" });
 
-    res.status(200).json({ token, user: { id: user._id, name: user.name, email: user.email } });
+    res.status(200).json({success : true, token, user: { id: user._id, name: user.name, email: user.email } });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({success : false, error: error.message });
   }
 };
+
+
+export const me = async(req,res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    user.password = undefined;
+    return res.json({success : true, user});
+  } catch (error) {
+    return res.status(500).json({success : false });
+  }
+    
+}
