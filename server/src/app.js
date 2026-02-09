@@ -16,7 +16,6 @@ app.use(
   cors({
     origin: "https://store-builder-eight.vercel.app",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    credentials: true,
   })
 );
 app.use(express.urlencoded({ extended: true }));
