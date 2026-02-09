@@ -13,7 +13,7 @@ const createStoreLimiter = rateLimit({
 
 
 router.post('/', createStoreLimiter, authenticate, storeController.createStore);
-router.delete('/:id',authenticate, storeController.deleteStore);
+router.delete('/',authenticate, storeController.deleteStore);
 router.get("/", authenticate, storeController.getMyStores);
 
 export default router;

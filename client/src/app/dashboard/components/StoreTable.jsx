@@ -37,6 +37,11 @@ const statusConfig = {
     label: "Failed",
     className: "border-destructive/30 bg-destructive/10 text-destructive",
   },
+  DELETING : {
+   label : "Deleting",
+   className: "border-destructive/30 bg-destructive/10 text-destructive"
+  }
+  
 };
 
 const StoreTable = ({ stores, onDelete }) => {
@@ -72,7 +77,7 @@ const StoreTable = ({ stores, onDelete }) => {
             const status = statusConfig[store.status];
 
             return (
-              <TableRow key={store.id}>
+              <TableRow key={store._id}>
                 <TableCell className="font-medium">{store.name}</TableCell>
 
                 <TableCell>
@@ -84,21 +89,21 @@ const StoreTable = ({ stores, onDelete }) => {
                 <TableCell>
                   <Badge
                     variant="outline"
-                    className={cn("text-xs", status.className)}
+                    className={cn("text-xs", status?.className)}
                   >
-                    {status.label}
+                    {status?.label}
                   </Badge>
                 </TableCell>
 
                 <TableCell>
-                  {store.url ? (
+                  {store.link ? (
                     <a
-                      href={store.url}
+                      href={store.link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                     >
-                      {store.url}
+                      {store.link}
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   ) : (
@@ -141,7 +146,7 @@ const StoreTable = ({ stores, onDelete }) => {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          onClick={() => onDelete(store.id)}
+                          onClick={() => onDelete(store._id)}
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
                           Delete

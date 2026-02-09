@@ -8,7 +8,7 @@ import { MAX_STORE_LIMIT } from '../utils/constant.js';
 
 export const createStore = async (req, res) => {
   try {
-    const { name, type, customPrefix, adminEmail, adminPassword } = req.body; 
+    const { name, type, slug, adminEmail, adminPassword } = req.body; 
     const userId = req.user.userId;
     const currentStoreCount = await Store.countDocuments({ owner: userId });
     
@@ -42,7 +42,7 @@ export const createStore = async (req, res) => {
 
     const suffix = crypto.randomBytes(3).toString("hex");
     const namespace = `store-${suffix}`;
-    const domain = getStoreDomain(namespace,customPrefix);
+    const domain = getStoreDomain(namespace,slug);
     const existingStore = await Store.findOne({ domain });
     
     if (existingStore) {
@@ -67,6 +67,7 @@ export const createStore = async (req, res) => {
     await deployStoreHelmChart(namespace, name, type, domain,adminEmail,adminPassword);
 
     store.status = "READY";
+    store.link = `http://${domain}`
     await store.save();
     console.log("--- Store Ready ---");
 
@@ -97,8 +98,8 @@ export const createStore = async (req, res) => {
 
 export const deleteStore = async (req, res) => {
   try {
-    const { id } = req.params;
-    const store = await Store.findById(id);
+    const { storeId } = req.body;
+    const store = await Store.findById(storeId);
 
     if (!store) {
       return res.status(404).json({
@@ -111,7 +112,7 @@ export const deleteStore = async (req, res) => {
     await store.save();
 
     await deleteStoreResources(store.namespace);
-    await Store.findByIdAndDelete(id);
+    await Store.findByIdAndDelete(storeId);
 
     console.log("--- Store Deleted Successfully ---");
 

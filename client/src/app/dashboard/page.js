@@ -8,67 +8,12 @@ import CreateStoreModal from "./components/CreateStoreModal";
 import StoreTable from "./components/StoreTable";
 import { useAuth } from "../_hooks/useAuth";
 import { useRouter } from "next/navigation";
+import api from "@/lib/api";
 
-const DUMMY_STORES = [
-  {
-    id: "1",
-    name: "Electronics Hub",
-    slug: "electronics-hub",
-    namespace: "ns-electronics-hub",
-    status: "READY",
-    url: "http://electronics-hub.192.168.49.2.nip.io",
-    createdAt: "2026-02-08T10:30:00Z",
-    type: "WooCommerce",
-    adminEmail: "admin@example.com",
-  },
-  {
-    id: "2",
-    name: "Fashion Store",
-    slug: "fashion-store",
-    namespace: "ns-fashion-store",
-    status: "PROVISIONING",
-    url: "",
-    createdAt: "2026-02-09T14:15:00Z",
-    type: "WooCommerce",
-    adminEmail: "admin@example.com",
-  },
-  {
-    id: "3",
-    name: "Book World",
-    slug: "book-world",
-    namespace: "ns-book-world",
-    status: "READY",
-    url: "http://book-world.192.168.49.2.nip.io",
-    createdAt: "2026-02-07T08:45:00Z",
-    type: "WooCommerce",
-    adminEmail: "admin@example.com",
-  },
-  {
-    id: "4",
-    name: "Gadget Zone",
-    slug: "gadget-zone",
-    namespace: "ns-gadget-zone",
-    status: "FAILED",
-    url: "",
-    createdAt: "2026-02-09T09:00:00Z",
-    type: "WooCommerce",
-    adminEmail: "admin@example.com",
-  },
-  {
-    id: "5",
-    name: "Organic Grocers",
-    slug: "organic-grocers",
-    namespace: "ns-organic-grocers",
-    status: "READY",
-    url: "http://organic-grocers.192.168.49.2.nip.io",
-    createdAt: "2026-02-06T16:20:00Z",
-    type: "WooCommerce",
-    adminEmail: "admin@example.com",
-  },
-];
+
 
 const Dashboard = () => {
-  const [stores, setStores] = useState(DUMMY_STORES);
+  const [stores, setStores] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
   const {isAuthenticated} = useAuth();
@@ -77,27 +22,38 @@ const Dashboard = () => {
     if(!isAuthenticated) {
         router.replace("/auth");
       }
+  },[]);
+
+  const fetchStores = async() => {
+    const token = localStorage.getItem("jwt");
+    const stores = await api.get("/stores", token);
+    setStores(stores);
+  }
+
+
+  useEffect(()=> {
+    fetchStores();
   },[])
   
 
-  const handleDelete = (id) => {
-    setStores((prev) => prev.filter((s) => s.id !== id));
+  const handleDelete = async(_id) => {
+
+    try {
+      const token = localStorage.getItem("jwt");
+      await api.del(`/stores`, {storeId : _id}, token);
+      await(fetchStores());
+
+    } catch (error) {
+      
+    }finally {
+
+    }
+   
   };
 
-  const handleCreated = () => {
-    const newStore = {
-      id: String(Date.now()),
-      name: "New Store",
-      slug: "new-store",
-      namespace: "ns-new-store",
-      status: "PROVISIONING",
-      url: "",
-      createdAt: new Date().toISOString(),
-      type: "WooCommerce",
-      adminEmail: "admin@example.com",
-    };
-
-    setStores((prev) => [newStore, ...prev]);
+  const handleCreated = async() => {
+    await fetchStores();
+    setModalOpen(false);
   };
 
   return (
