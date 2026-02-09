@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "../_components/ui/button";
 import CreateStoreModal from "./components/CreateStoreModal";
 import StoreTable from "./components/StoreTable";
+import { useAuth } from "../_hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 const DUMMY_STORES = [
   {
@@ -68,6 +70,15 @@ const DUMMY_STORES = [
 const Dashboard = () => {
   const [stores, setStores] = useState(DUMMY_STORES);
   const [modalOpen, setModalOpen] = useState(false);
+  const router = useRouter();
+  const {isAuthenticated} = useAuth();
+
+  useEffect(() => {
+    if(!isAuthenticated) {
+        router.replace("/auth");
+      }
+  },[])
+  
 
   const handleDelete = (id) => {
     setStores((prev) => prev.filter((s) => s.id !== id));

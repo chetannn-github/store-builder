@@ -1,31 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Box, Menu, X, LogOut } from "lucide-react";
 import { Button } from "../_components/ui/button";
 import { cn } from "../../lib/utils";
+import { useAuth } from "../_hooks/useAuth";
 
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
-  
+  const { handleLogout, isAuthenticated, user } = useAuth();
 
-  const isAuthenticated = false;
+  useEffect(()=> {
+    const navItems = [
+      { label: "Home", path: "/" },
+      ...(isAuthenticated ? [{ label: "Dashboard", path: "/dashboard" }] : []),
+      { label: "Documentation", path: "/docs" },
+    ]
+    setNavItems(navItems);
+  },[user,isAuthenticated])
 
-  const navItems = [
+  const [navItems, setNavItems] = useState([
     { label: "Home", path: "/" },
     ...(isAuthenticated ? [{ label: "Dashboard", path: "/dashboard" }] : []),
     { label: "Documentation", path: "/docs" },
-  ];
+  ]);
 
-  const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
