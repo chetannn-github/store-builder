@@ -1,6 +1,11 @@
-export const getStoreDomain = (namespace,customDomain) => {
-    const isCustom = customDomain && customDomain.trim() !== "";
-    const domain = isCustom ? customDomain : `${namespace}`;
+import { BASE_DOMAIN } from "../config/env.js";
 
-    return {domain , isCustom};
+export const getStoreDomain = (namespace,customPrefix) => {
+    const isCustomPrefix = customPrefix && customPrefix.trim() !== "";
+    const prefix = isCustomPrefix ? customPrefix : `${namespace}`;
+
+    const baseDomain = BASE_DOMAIN;
+    const domain = `${prefix}.${baseDomain}`;
+
+    return domain;
 }
