@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { FilePen, Loader2 } from "lucide-react";
 import { Button } from "../../_components/ui/button";
 import { Input } from "../../_components/ui/input";
 import { Label } from "../../_components/ui/label";
@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from "../../_components/ui/dialog";
 import { useToast } from "../../_hooks/useToast";
+import api from "@/lib/api";
 
 const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
   const { toast } = useToast();
@@ -22,14 +23,24 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
   const [form, setForm] = useState({
     name: "",
     slug: "",
-    type: "WooCommerce",
+    type: "woocommerce",
     adminEmail: "admin@example.com",
-    password: "password123",
+    adminPassword: "password123",
   });
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
+
+  const createStore = async(payload) => {
+    const token = localStorage.getItem("jwt");
+    try {
+      const res = await api.post("/stores",payload, token);
+    } catch (error) {
+      
+    }
+
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,25 +56,16 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
 
     setLoading(true);
 
-    // Simulate provisioning delay
-    setTimeout(() => {
-      toast({
-        title: "Store Created",
-        description: "Provisioning has started.",
-      });
+    try {
+      await createStore(form);
+      await onCreated();
+    } catch (error) {
+      
+    }
+    onOpenChange(false);
+    setLoading(false);
 
-      setForm({
-        name: "",
-        slug: "",
-        type: "WooCommerce",
-        adminEmail: "admin@example.com",
-        password: "password123",
-      });
 
-      setLoading(false);
-      onOpenChange(false);
-      onCreated();
-    }, 1500);
   };
 
   return (
@@ -125,8 +127,8 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
             <Input
               id="password"
               type="password"
-              value={form.password}
-              onChange={(e) => handleChange("password", e.target.value)}
+              value={form.adminPassword}
+              onChange={(e) => handleChange("adminPassword", e.target.value)}
               disabled={loading}
             />
           </div>
