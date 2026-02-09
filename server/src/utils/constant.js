@@ -1,0 +1,1 @@
+export const MAX_STORE_LIMIT = 3;

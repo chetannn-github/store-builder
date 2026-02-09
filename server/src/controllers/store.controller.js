@@ -2,12 +2,22 @@ import Store from '../models/store.model.js';
 import crypto from "crypto";
 import { createK8sNamespace, deleteStoreResources, deployStoreHelmChart } from '../services/k8sServices.js';
 import { getStoreDomain } from '../utils/helper.js';
+import { MAX_STORE_LIMIT } from '../utils/constant.js';
 
 
 
 export const createStore = async (req, res) => {
   try {
-    const { name, type, customDomain, email, password } = req.body; 
+    const { name, type, customPrefix, adminEmail, adminPassword } = req.body; 
+    const userId = req.user.userId;
+    const currentStoreCount = await Store.countDocuments({ owner: userId });
+    
+    if (currentStoreCount >= MAX_STORE_LIMIT) {
+      return res.status(403).json({
+        success: false,
+        message: `Quota Exceeded: You can only create up to ${MAX_STORE_LIMIT} stores on the free plan.`
+      });
+    }
 
     if (!name || !type) {
       return res.status(400).json({
@@ -23,54 +33,47 @@ export const createStore = async (req, res) => {
       });
     }
 
-    if (customDomain) {
-      const existingStore = await Store.findOne({ domain: customDomain });
-      if (existingStore) {
-        return res.status(400).json({ 
-          success: false, 
-          message: `Domain '${customDomain}' is already taken. Please choose another one.` 
-        });
-      }
-    }
-
-
-    if(type === 'medusa' && (!email || !password)) {
+    if(type === 'medusa' && (!adminEmail || !adminPassword)) {
       return res.status(400).json({
         success: false,
-        message: "Please provide email and password !",
+        message: "Please provide adminEmail and adminPassword !",
       });
     }
 
     const suffix = crypto.randomBytes(3).toString("hex");
     const namespace = `store-${suffix}`;
-    const { domain, isCustom }  = getStoreDomain(namespace,customDomain);
-
+    const domain = getStoreDomain(namespace,customPrefix);
+    const existingStore = await Store.findOne({ domain });
+    
+    if (existingStore) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Domain '${domain}' is already taken. Please choose another one.` 
+      });
+    }
+    
     const store = await Store.create({
       name,
       type,
       namespace,
       domain, 
-      isCustomDomain: isCustom,
       status: "PROVISIONING",
+      owner: userId,
     });
 
     console.log("--- Starting Provisioning ---");
     
     await createK8sNamespace(namespace);
-    const baseDomain = process.env.BASE_DOMAIN || "localhost";
-    const finalDomain = `store-${domain}.${baseDomain}`;
-    await deployStoreHelmChart(namespace, name, type, finalDomain,email,password);
+    await deployStoreHelmChart(namespace, name, type, domain,adminEmail,adminPassword);
 
     store.status = "READY";
     await store.save();
-
     console.log("--- Store Ready ---");
 
     return res.status(201).json({
       success: true,
       message: "Store created successfully",
-      data: store,
-      storeUrl: `http://${finalDomain}`
+      data: store
     });
    
   } catch (error) {
@@ -89,8 +92,6 @@ export const createStore = async (req, res) => {
     });
   }
 };
-
-
 
 
 
@@ -126,5 +127,16 @@ export const deleteStore = async (req, res) => {
       message: "Failed to delete store",
       error: error.message
     });
+  }
+};
+
+
+
+export const getMyStores = async (req, res) => {
+  try {
+    const stores = await Store.find({ owner: req.user.userId });
+    res.json(stores);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

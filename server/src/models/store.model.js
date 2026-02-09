@@ -25,21 +25,18 @@ const storeSchema = new mongoose.Schema(
       unique: true,
       trim: true
     },
-
-    isCustomDomain: { 
-      type: Boolean, 
-      default: false
-    },
+    
     status: {
       type: String,
       enum: ["PROVISIONING", "READY", "FAILED", "DELETING"],
       default: "PROVISIONING",
     },
 
-    failureReason: {
-      type: String,
-      default: null,
-    },
+    owner: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User',
+      required: true 
+    }
   },
   {
     timestamps: true,
