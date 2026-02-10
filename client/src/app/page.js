@@ -1,8 +1,10 @@
-
+"use client"
 import { Shield, Globe, Cloud, ArrowRight, Terminal } from "lucide-react";
 import { Button } from "./_components/ui/button";
 import { Card, CardContent } from "./_components/ui/card";
 import Link from "next/link";
+import { useAuth } from "./_hooks/useAuth";
+
 
 const features = [
   {
@@ -26,7 +28,10 @@ const features = [
 ];
 
 const Index = () => {
-  return (
+  const {isLoading} = useAuth();
+
+  if(isLoading) return null;
+    return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col">
       {/* Hero Section */}
       <section className="relative flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">

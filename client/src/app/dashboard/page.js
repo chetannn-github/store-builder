@@ -16,19 +16,22 @@ const Dashboard = () => {
   const [stores, setStores] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
-  const {isAuthenticated} = useAuth();
+  const {isAuthenticated, isLoading} = useAuth();
 
-  useEffect(() => {
-    if(!isAuthenticated) {
-        router.replace("/auth");
-      }
-  },[]);
+  
 
   const fetchStores = async() => {
     const token = localStorage.getItem("jwt");
     const stores = await api.get("/stores", token);
     setStores(stores);
   }
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+        router.replace("/auth");
+    }
+  }, [isAuthenticated, router, isLoading]);
+  
 
 
   useEffect(()=> {
@@ -56,6 +59,10 @@ const Dashboard = () => {
     setModalOpen(false);
   };
 
+  if(isLoading) return null;
+  if(!isAuthenticated) return null;
+
+ 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

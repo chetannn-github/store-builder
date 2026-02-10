@@ -7,12 +7,16 @@ import { Box, Menu, X, LogOut } from "lucide-react";
 import { Button } from "../_components/ui/button";
 import { cn } from "../../lib/utils";
 import { useAuth } from "../_hooks/useAuth";
+import Loader from "./Loader";
 
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  const { handleLogout, isAuthenticated, user } = useAuth();
+  const { handleLogout, isAuthenticated, user, isLoading } = useAuth();
+
+
+
 
   useEffect(()=> {
     const navItems = [
@@ -29,6 +33,8 @@ const Navbar = () => {
     { label: "Documentation", path: "/docs" },
   ]);
 
+   
+  if(isLoading) return <Loader fullScreen = {true} label={"Welcome to Store Builder"}/>;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">

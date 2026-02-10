@@ -25,13 +25,13 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const { isAuthenticated , handleLogin, handleSignup, isAuthenticating : loading } = useAuth()
-
+  const { isAuthenticated , handleLogin, handleSignup, isAuthenticating : loading, isLoading } = useAuth()
   useEffect(() => {
-    if (isAuthenticated) {
-      router.replace("/dashboard");
+    if (!isLoading && isAuthenticated) {
+        router.replace("/dashboard");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, isLoading]);
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +39,9 @@ const Auth = () => {
     else await handleSignup(email, password);
 
   };
+
+  if(isLoading) return null;
+   if(isAuthenticated) return null;
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12">
