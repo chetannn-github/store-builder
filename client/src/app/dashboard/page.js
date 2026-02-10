@@ -18,6 +18,7 @@ const Dashboard = () => {
   const router = useRouter();
   const {isAuthenticated, isLoading} = useAuth();
   const [isGettingStores, setIsGettingStores] = useState(false);
+  const [isDeleting,setIsDeleting] = useState(null);
 
   
 
@@ -47,17 +48,18 @@ const Dashboard = () => {
   },[])
   
 
-  const handleDelete = async(_id) => {
+  const handleDelete = async(storeId) => {
 
     try {
+      setIsDeleting(storeId);
       const token = localStorage.getItem("jwt");
-      await api.del(`/stores`, {storeId : _id}, token);
+      await api.del(`/stores`, {storeId}, token);
       await(fetchStores());
 
     } catch (error) {
       
     }finally {
-
+      setIsDeleting(null);
     }
    
   };
@@ -89,7 +91,7 @@ const Dashboard = () => {
         </Button>
       </div>
 
-      <StoreTable stores={stores} onDelete={handleDelete}  isLoading={isGettingStores}/>
+      <StoreTable stores={stores} onDelete={handleDelete}  isLoading={isGettingStores} isDeleting={isDeleting}/>
 
       <CreateStoreModal
         open={modalOpen}

@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from "../../_components/ui/alert-dialog";
 import { cn } from "../../../lib/utils";
+import { useState } from "react";
 
 const statusConfig = {
   PROVISIONING: {
@@ -44,7 +45,8 @@ const statusConfig = {
   
 };
 
-const StoreTable = ({ stores, onDelete, isLoading }) => {
+const StoreTable = ({ stores, onDelete, isLoading, isDeleting }) => {
+  
   if (!stores || stores.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
@@ -140,7 +142,9 @@ const StoreTable = ({ stores, onDelete, isLoading }) => {
                         size="icon"
                         className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {isDeleting !== store?._id && <Trash2 className="h-4 w-4" />}
+                        {isDeleting === store?._id && <Loader2 className="h-4 w-4 animate-spin" />}
+            
                       </Button>
                     </AlertDialogTrigger>
 
