@@ -61,22 +61,35 @@ export const createStore = async (req, res) => {
       owner: userId,
     });
 
-    console.log("--- Starting Provisioning ---");
-    
-    await createK8sNamespace(namespace);
-    await deployStoreHelmChart(namespace, name, type, domain,adminEmail,adminPassword);
-
-    store.status = "READY";
-    store.link = `http://${domain}`
-    await store.save();
-    console.log("--- Store Ready ---");
-
-    return res.status(201).json({
+    res.status(202).json({
       success: true,
-      message: "Store created successfully",
+      message: "Store provisioning started. It will be ready in a few moments.",
       data: store
     });
-   
+
+    (async () => {
+      try {
+        console.log(`[Background] Starting deployment for ${name} (${namespace})...`);
+        await createK8sNamespace(namespace);
+        await deployStoreHelmChart(namespace, name, type, domain, adminEmail, adminPassword);
+        await Store.findByIdAndUpdate(store._id, {
+          status: "READY",
+          link: `http://${domain}`
+        });
+
+        console.log(`[Background] Store ${name} is now READY! 🟢`);
+
+      } catch (err) {
+        console.error(`[Background] Deployment Failed for ${name}:`, err);
+        
+        await Store.findByIdAndUpdate(store._id, {
+          status: "FAILED",
+          failureReason: err.message
+        });
+      }
+    })();
+  
+ 
   } catch (error) {
     console.error("Error creating store:", error);
 
@@ -87,13 +100,14 @@ export const createStore = async (req, res) => {
       });
     }
 
-    return res.status(500).json({
-      success: false,
-      message: "Failed to create store",
-    });
+    if (!res.headersSent) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to initiate store creation",
+        });
+    }
   }
 };
-
 
 
 export const deleteStore = async (req, res) => {
@@ -107,27 +121,41 @@ export const deleteStore = async (req, res) => {
         message: "Store not found",
       });
     }
-
     store.status = "DELETING";
     await store.save();
 
-    await deleteStoreResources(store.namespace);
-    await Store.findByIdAndDelete(storeId);
-
-    console.log("--- Store Deleted Successfully ---");
-
-    return res.status(200).json({
+    res.status(202).json({
       success: true,
-      message: "Store deleted successfully",
+      message: "Store deletion initiated in background",
+      storeId: storeId
     });
+
+
+    (async () => {
+      try {
+        console.log(`[Background] Deleting resources for namespace: ${store.namespace}...`);
+        await deleteStoreResources(store.namespace);
+        await Store.findByIdAndDelete(storeId);
+        console.log(`[Background] Store ${store.name} deleted successfully from DB & K8s ✅`);
+
+      } catch (err) {
+        console.error(`[Background] Delete Failed for ${store.name}:`, err);
+        await Store.findByIdAndUpdate(storeId, {
+          status: "DELETION_FAILED",
+          failureReason: err.message
+        });
+      }
+    })();
 
   } catch (error) {
-    console.error("Delete Error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to delete store",
-      error: error.message
-    });
+    console.error("API Error:", error);
+    if (!res.headersSent) {
+        return res.status(500).json({
+        success: false,
+        message: "Failed to initiate deletion",
+        error: error.message
+        });
+    }
   }
 };
 

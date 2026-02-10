@@ -45,7 +45,21 @@ const Dashboard = () => {
 
   useEffect(()=> {
     fetchStores();
-  },[])
+  },[]);
+
+
+  useEffect(() => {
+    const isProvisioning = stores.some((store) => (store.status === "PROVISIONING" || store.status === "DELETING"));
+    let intervalId;
+
+    if (isProvisioning) {
+      intervalId = setInterval(fetchStores, 4000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+
+  }, [stores]);
   
 
   const handleDelete = async(storeId) => {
