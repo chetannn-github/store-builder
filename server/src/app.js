@@ -15,9 +15,10 @@ app.use(express.json());
 app.use(helmet());
 app.use(
   cors({
-    origin: ["https://store-builder-eight.vercel.app", 
+    origin: ["http://store-builder.chickenkiller.com:3000/", 
       "http://localhost:3000","http://51.21.19.170:3000",
       "http://store-builder.chickenkiller.com:3000/"
+      
     ],
     credentials : true
   })
