@@ -3,9 +3,7 @@ import { BASE_URL } from "./constant";
 
 async function handleRes(res) {
   try {
-    if (!res.ok) throw new Error('Internal Server Error ' + res.status)
     let result = await res.json();
-    console.log(result);
     return result;
   } catch (error) {
     

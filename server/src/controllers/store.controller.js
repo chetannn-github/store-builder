@@ -15,7 +15,7 @@ export const createStore = async (req, res) => {
     if (currentStoreCount >= MAX_STORE_LIMIT) {
       return res.status(403).json({
         success: false,
-        message: `Quota Exceeded: You can only create up to ${MAX_STORE_LIMIT} stores on the free plan.`
+        message: `Quota Exceeded: You can only create up to ${MAX_STORE_LIMIT} stores.`
       });
     }
 
@@ -64,7 +64,6 @@ export const createStore = async (req, res) => {
     res.status(202).json({
       success: true,
       message: "Store provisioning started. It will be ready in a few moments.",
-      data: store
     });
 
     (async () => {

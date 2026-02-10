@@ -13,11 +13,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../_components/ui/dialog";
-import { useToast } from "../../_hooks/useToast";
+
 import api from "@/lib/api";
+import toast from "react-hot-toast";
 
 const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -34,33 +34,20 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
 
   const createStore = async(payload) => {
     const token = localStorage.getItem("jwt");
-    try {
-      const res = await api.post("/stores",payload, token);
-    } catch (error) {
-      
-    }
-
+    const res = await api.post("/stores",payload, token);
+    if(res?.success) toast.success(res?.message);
+    else toast.error(res?.message);
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.name.trim() || !form.slug.trim()) {
-      toast({
-        title: "Validation Error",
-        description: "Store Name and Slug are required.",
-        variant: "destructive",
-      });
       return;
     }
 
   
     if (form.type === 'medusa' && (!form.adminEmail || !form.adminPassword)) {
-       toast({
-        title: "Validation Error",
-        description: "Admin Email and Password are required for Medusa.",
-        variant: "destructive",
-      });
       return;
     }
 

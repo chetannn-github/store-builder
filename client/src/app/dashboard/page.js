@@ -1,5 +1,5 @@
 "use client";
-
+import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
@@ -67,8 +67,10 @@ const Dashboard = () => {
     try {
       setIsDeleting(storeId);
       const token = localStorage.getItem("jwt");
-      await api.del(`/stores`, {storeId}, token);
+      const res = await api.del(`/stores`, {storeId}, token);
       await(fetchStores());
+      if(res.success) toast.success(res.message);
+      else toast.error(res.message);
 
     } catch (error) {
       
