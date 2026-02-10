@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FilePen, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "../../_components/ui/button";
 import { Input } from "../../_components/ui/input";
 import { Label } from "../../_components/ui/label";
@@ -23,7 +23,7 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
   const [form, setForm] = useState({
     name: "",
     slug: "",
-    type: "woocommerce",
+    type: "woocommerce", // Default value
     adminEmail: "admin@example.com",
     adminPassword: "password123",
   });
@@ -54,6 +54,16 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
       return;
     }
 
+  
+    if (form.type === 'medusa' && (!form.adminEmail || !form.adminPassword)) {
+       toast({
+        title: "Validation Error",
+        description: "Admin Email and Password are required for Medusa.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -74,7 +84,7 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
         <DialogHeader>
           <DialogTitle>Create New Store</DialogTitle>
           <DialogDescription>
-            Provision a new WooCommerce store on Kubernetes.
+            Provision a new isolated store on Kubernetes.
           </DialogDescription>
         </DialogHeader>
 
@@ -103,35 +113,43 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
 
           <div className="space-y-2">
             <Label htmlFor="type">Store Type</Label>
-            <Input
+            <select
               id="type"
-              value="WooCommerce"
-              readOnly
-              className="text-muted-foreground"
-            />
+              value={form.type}
+              onChange={(e) => handleChange("type", e.target.value)}
+              disabled={loading}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <option value="woocommerce">WooCommerce (WordPress)</option>
+              <option value="medusa">Medusa JS (Headless)</option>
+            </select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Admin Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={form.adminEmail}
-              onChange={(e) => handleChange("adminEmail", e.target.value)}
-              disabled={loading}
-            />
-          </div>
+          {form.type === "medusa" && (
+            <div className="space-y-4 border-l-2 pl-4  p-3 rounded-r-md animate-in fade-in slide-in-from-top-2">
+              <div className="space-y-2">
+                <Label htmlFor="email">Admin Email (Medusa)</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={form.adminEmail}
+                  onChange={(e) => handleChange("adminEmail", e.target.value)}
+                  disabled={loading}
+                />
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={form.adminPassword}
-              onChange={(e) => handleChange("adminPassword", e.target.value)}
-              disabled={loading}
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Admin Password (Medusa)</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={form.adminPassword}
+                  onChange={(e) => handleChange("adminPassword", e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          )}
 
           <DialogFooter>
             <Button

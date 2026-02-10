@@ -74,7 +74,7 @@ export const createStore = async (req, res) => {
         await deployStoreHelmChart(namespace, name, type, domain, adminEmail, adminPassword);
         await Store.findByIdAndUpdate(store._id, {
           status: "READY",
-          link: `http://${domain}`
+          link: `http://${domain}${type === "medusa" ? "/app" : ""}`
         });
 
         console.log(`[Background] Store ${name} is now READY! 🟢`);
