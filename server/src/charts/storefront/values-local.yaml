@@ -1,13 +1,13 @@
 replicaCount: 1
 
 image:
-  repository: wordpress
+  repository: chetannn/custom-store-builder
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "v1"
 
 store:
   type: "woocommerce"
-  port: 80
+  port: 8080  
 
 service:
   type: ClusterIP
@@ -19,10 +19,14 @@ ingress:
   host: "store.localhost" 
 
 
+wordpressUsername: "admin"
+wordpressPassword: "password123"
+wordpressEmail: "admin@example.com"
+
 resources: 
   limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
     cpu: 200m
     memory: 256Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi

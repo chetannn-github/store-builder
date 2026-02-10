@@ -20,14 +20,16 @@ spec:
           ports:
             - containerPort: 3306
           env:
-            - name: MARIADB_ROOT_PASSWORD
-              value: "root123"
-            - name: MARIADB_DATABASE
-              value: "wordpress"
             - name: MARIADB_USER
-              value: "user123"
+              value: "bn_wordpress"  
             - name: MARIADB_PASSWORD
-              value: "pass123"
+              value: "secret123"
+            - name: MARIADB_DATABASE
+              value: "bitnami_wordpress"
+            - name: MARIADB_ROOT_PASSWORD
+              value: "rootsecret123" 
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
           volumeMounts:
             - name: db-data
               mountPath: /var/lib/mysql
