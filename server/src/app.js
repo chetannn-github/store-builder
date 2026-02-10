@@ -17,10 +17,7 @@ app.use(
   cors({
     origin: ["https://store-builder-eight.vercel.app", 
       "http://localhost:3000","http://51.21.19.170:3000",
-      "http://store-builder.chickenkiller.com:3000/",
-      "https://store-builder.chickenkiller.com:3000/",
-      "http://store-builder.chickenkiller.com/",
-      "https://store-builder.chickenkiller.com/",
+      "http://store-builder.chickenkiller.com:3000/"
     ],
     credentials : true
   })
