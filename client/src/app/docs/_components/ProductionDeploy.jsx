@@ -105,6 +105,39 @@ pm2 startup`}
         />
       </div>
     </div>
+
+    <div>
+  <h3 className="mb-2 text-base font-semibold text-foreground">
+    Verification: Check Everything Is Running Correctly
+  </h3>
+  <p className="mb-3 text-sm text-muted-foreground">
+    Run the following commands to verify that Kubernetes, Helm, Node.js, and PM2
+    are installed correctly and all services are running as expected.
+  </p>
+
+  <CodeBlock
+    code={`# Kubernetes checks
+kubectl get nodes
+kubectl get pods -A
+
+# K3s service status
+sudo systemctl status k3s
+
+# Helm check
+helm version
+
+# Node & npm check
+node -v
+npm -v
+
+# PM2 process status
+pm2 status
+
+# Backend health check (should return a response)
+curl http://localhost:5000/api/health`}
+  />
+</div>
+
   </div>
 );
 
