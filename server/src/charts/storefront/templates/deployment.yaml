@@ -16,22 +16,49 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          # Yahan image dynamic hogi (Wordpress ya Medusa)
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: {{ .Values.store.port }}
               protocol: TCP
+          
+          lifecycle:
+            postStart:
+              exec:
+                command: 
+                  - "/bin/bash"
+                  - "-c"
+                  - >
+                    echo "⏳ Waiting for WordPress Setup...";
+                    sleep 30;
+                    wp plugin activate woocommerce --allow-root;
+                    echo "✅ WooCommerce Activated!";
+
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           
           env:
-            - name: WORDPRESS_DB_HOST
-              value: "{{ .Release.Name }}-db"  # Ye DB service ka naam hai
-            - name: WORDPRESS_DB_USER
-              value: "user123"                 # DB deployment se match hona chahiye
-            - name: WORDPRESS_DB_PASSWORD
-              value: "pass123"                 # DB deployment se match hona chahiye
-            - name: WORDPRESS_DB_NAME
-              value: "wordpress"
+            - name: WORDPRESS_DATABASE_HOST
+              value: "{{ .Release.Name }}-db"
+            - name: WORDPRESS_DATABASE_USER
+              value: "bn_wordpress"
+            - name: WORDPRESS_DATABASE_PASSWORD
+              value: "secret123"
+            - name: WORDPRESS_DATABASE_NAME
+              value: "bitnami_wordpress"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+
+            - name: WORDPRESS_USERNAME
+              value: {{ default "user" .Values.wordpressUsername | quote }}
+            - name: WORDPRESS_PASSWORD
+              value: {{ default "bitnami" .Values.wordpressPassword | quote }}
+            - name: WORDPRESS_EMAIL
+              value: {{ default "user@example.com" .Values.wordpressEmail | quote }}
+            - name: WORDPRESS_FIRST_NAME
+              value: "Store"
+            - name: WORDPRESS_LAST_NAME
+              value: "Admin"
+            - name: WORDPRESS_BLOG_NAME
+              value: "My WooCommerce Store"
