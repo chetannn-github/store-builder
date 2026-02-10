@@ -53,7 +53,7 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
       --set wordpressLastName="Owner" \
       \
       --set ingress.enabled=true \
-      --set ingress.hostname=${domain} \
+      --set ingress.host=${domain} \
       --set ingress.className="traefik" \
       \
       --set livenessProbe.initialDelaySeconds=60 \
