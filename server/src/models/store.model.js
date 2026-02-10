@@ -28,7 +28,7 @@ const storeSchema = new mongoose.Schema(
     
     status: {
       type: String,
-      enum: ["PROVISIONING", "READY", "FAILED", "DELETING"],
+      enum: ["PROVISIONING", "READY", "FAILED", "DELETING", "DELETION_FAILED"],
       default: "PROVISIONING",
     },
 
