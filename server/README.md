@@ -1,43 +1,45 @@
 # 🚀 ONLINE STORE BUILDER
 
-Online Store Builder is a tool that helps you create and manage **isolated online stores on Kubernetes**. It runs seamlessly on both **Local (Minikube)** and **Production (AWS EC2 + K3s)** environments using a single codebase.
+Online Store Builder is a platform that provisions **isolated online
+stores on Kubernetes**.\
+It works seamlessly in both **Local (Minikube)** and **Production (AWS
+EC2 + K3s)** environments using a single codebase.
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
 ![Tech](https://img.shields.io/badge/Stack-Node.js%20%7C%20Kubernetes%20%7C%20Helm-blue)
 
----
+------------------------------------------------------------------------
 
 ## 🌟 What does this platform do?
 
-It lets you create a fully working online store in just one click. Simply enter a store name, and you instantly get a live link to your new website—no technical setup required.
+The platform allows users to create a fully functional online store with
+a single request.\
+Once a store name is provided, a live domain is automatically generated
+and routed to a dedicated Kubernetes namespace.
 
 ### Key Highlights
 
-- **Hybrid Cloud Support**  
-  The platform automatically understands whether it is running locally or on production and adjusts:
-  - Ingress controller (Nginx / Traefik)
-  - Domain handling strategy
+-   **Hybrid Cloud Support**\
+    Automatically adapts based on environment:
 
-- **Instant Domains with `nip.io`**  
-  - **Production:** Automatically creates domains like  
-    `store-name.<SERVER_IP>.nip.io`  
-  - **Local:** Uses `localhost` for quick testing  
+    -   Local → Minikube + localhost
+    -   Production → AWS EC2 + K3s + nip.io domains
 
-- **Full Store Isolation**  
-  Each store runs in its own **Kubernetes Namespace** with strict **CPU and memory limits**, so one store never affects another.
+-   **Instant Domains using `nip.io`**\
+    `store-name.<EC2_PUBLIC_IP>.nip.io`
 
-- **Clean Deletion (No Leftovers)**  
-  When a store is deleted:
-  - Helm release is removed
-  - Namespace is deleted
-  - PVCs are cleaned up  
-  This prevents disk space leaks over time.
+-   **Strong Isolation**
 
-- **Access Control & Limits**  
-  - Users can manage only their own stores
-  - Store creation is rate-limited (max 3 stores per user)
+    -   One Kubernetes namespace per store
+    -   CPU & memory limits enforced
 
----
+-   **Clean Store Deletion**
+
+    -   Helm release removed
+    -   Namespace deleted
+    -   Persistent volumes cleaned
+
+------------------------------------------------------------------------
 
 ## 🏗️ How the system works
 
@@ -62,31 +64,10 @@ It lets you create a fully working online store in just one click. Simply enter 
 
 ---
 
-## 🛠️ Getting Started
 
-### Prerequisites
+------------------------------------------------------------------------
 
-- Node.js (v18+)
-- Docker Desktop
-- Minikube (for local setup)
-- Helm 3
-- MongoDB (Local or Atlas)
 
----
-
-### ⚙️ Environment Configuration
-
-Create a `.env` file inside the `server/` directory:
-
-```env
-PORT=5000
-NODE_ENV=development      # production on VPS
-MONGO_URI=mongodb://...
-JWT_SECRET=secure_secret
-BASE_DOMAIN=localhost     # <IP>.nip.io on production
-```
-
----
 
 ## 💻 Local Setup (Minikube)
 
@@ -119,38 +100,87 @@ npm run dev
 
 ---
 
-## ☁️ Production Setup (AWS EC2 + K3s)
+------------------------------------------------------------------------
 
-Tested on **Ubuntu 22.04 (t3.medium)**.
+## ☁️ Production Deployment (AWS EC2 + K3s)
 
-Install K3s:
+### Infrastructure Requirements
 
-```bash
+-   Ubuntu 22.04
+-   t3.medium (minimum)
+
+### Security Group Rules
+
+Ports to open: **22, 80, 443, 5000**
+
+------------------------------------------------------------------------
+
+### Step 1: Install K3s
+
+``` bash
 curl -sfL https://get.k3s.io | sh -
 sudo chmod 644 /etc/rancher/k3s/k3s.yaml
 ```
 
-Install tools:
+------------------------------------------------------------------------
 
-```bash
-# Helm
+### Step 2: Install Helm & Node.js
+
+``` bash
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
 
-# PM2
+------------------------------------------------------------------------
+
+### Step 3: Clone Repository
+
+``` bash
+git clone https://github.com/chetannn-github/store-builder.git
+cd store-builder
+cd server && npm install
+cd ../client && npm install && npm run build
+```
+
+------------------------------------------------------------------------
+
+### Step 4: Environment Variables
+
+``` env
+NODE_ENV=production
+PORT=5000
+MONGO_URI=<MONGO_ATLAS_URI>
+JWT_SECRET=<SECRET>
+BASE_DOMAIN=<EC2_PUBLIC_IP>.nip.io
+```
+
+------------------------------------------------------------------------
+
+### Step 5: Run Backend
+
+``` bash
 npm install -g pm2
+pm2 start server.js --name orchestrator
+pm2 save
+pm2 startup
 ```
 
-Deploy backend:
+------------------------------------------------------------------------
 
-```bash
-pm2 start server.js --name "online-store-builder"
+### ✅ Verification
+
+``` bash
+kubectl get nodes
+kubectl get pods -A
+helm version
+node -v
+pm2 status
+curl http://localhost:5000/api/health
 ```
 
-Make sure:
-- `NODE_ENV=production`
-- `BASE_DOMAIN=<YOUR_EC2_IP>.nip.io`
+------------------------------------------------------------------------
 
----
 
 ## 🧠 Engineering Choices (Simple Explanation)
 
@@ -164,10 +194,8 @@ I didn't have a registered domain name. nip.io allowed us to turn our server's I
 
 ---
 
-## 🔐 Security Basics
+## 🔐 Security
 
-- Namespace-level isolation
-- CPU & memory limits
-- JWT-based API authentication
-
----
+-   Namespace isolation
+-   Resource quotas
+-   JWT authentication
