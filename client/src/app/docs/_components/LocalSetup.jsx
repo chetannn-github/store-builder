@@ -1,6 +1,6 @@
 import CodeBlock from "./CodeBlock";
 import { Alert, AlertDescription } from "../../_components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Terminal, Trash2 } from "lucide-react";
 
 const LocalSetup = () => (
   <div className="space-y-8">
@@ -22,33 +22,45 @@ const LocalSetup = () => (
     </div>
 
     <div className="space-y-6">
+      
+      {/* STEP 1 */}
       <div>
         <h3 className="mb-2 text-base font-semibold text-foreground">Step 1: Start Minikube</h3>
         <p className="mb-3 text-sm text-muted-foreground">Start a local Kubernetes cluster using the Docker driver.</p>
         <CodeBlock code="minikube start --driver=docker" />
       </div>
 
+      {/* STEP 2 */}
       <div>
-        <h3 className="mb-2 text-base font-semibold text-foreground">Step 2: Enable Ingress Addon</h3>
-        <p className="mb-3 text-sm text-muted-foreground">Enable the Nginx Ingress controller for local routing.</p>
-        <CodeBlock code="minikube addons enable ingress" />
+        <h3 className="mb-2 text-base font-semibold text-foreground">Step 2: Verify Cluster Status</h3>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Check if Minikube is running and Kubernetes is ready.
+        </p>
+        <CodeBlock 
+          code={`# 1. Check Minikube Status
+minikube status
+
+# 2. Check Kubernetes Nodes
+kubectl get nodes`} 
+        />
       </div>
 
+      {/* STEP 3 */}
       <div>
-        <h3 className="mb-2 text-base font-semibold text-foreground">Step 3: Start Minikube Tunnel</h3>
-        <p className="mb-3 text-sm text-muted-foreground">Expose cluster services to your local machine.</p>
-        <CodeBlock code="minikube tunnel" />
+        <h3 className="mb-2 text-base font-semibold text-foreground">Step 3: Enable Ingress & Tunnel</h3>
+        <p className="mb-3 text-sm text-muted-foreground">Enable the Nginx Ingress controller and start the tunnel.</p>
+        <CodeBlock code={`minikube addons enable ingress\nminikube tunnel`} />
         <Alert className="mt-3 border-warning/30 bg-warning/5">
           <AlertTriangle className="h-4 w-4 text-warning" />
           <AlertDescription className="text-warning">
-            Keep this terminal open! The tunnel must remain running for services to be accessible.
+            Keep the <b>minikube tunnel</b> terminal open! It exposes the services to localhost.
           </AlertDescription>
         </Alert>
       </div>
 
+      {/* STEP 4 */}
       <div>
         <h3 className="mb-2 text-base font-semibold text-foreground">Step 4: Clone & Install</h3>
-        <p className="mb-3 text-sm text-muted-foreground">Clone the repository and install dependencies for both the server and dashboard.</p>
         <CodeBlock
           code={`git clone https://github.com/chetannn-github/store-builder.git
 cd store-builder
@@ -56,16 +68,16 @@ cd store-builder
 # Install server dependencies
 cd server && npm install
 
-# Install dashboard dependencies
+# Install client dependencies
 cd ../client && npm install`}
         />
       </div>
 
+      {/* STEP 5 */}
       <div>
         <h3 className="mb-2 text-base font-semibold text-foreground">Step 5: Configure Environment</h3>
-        <p className="mb-3 text-sm text-muted-foreground">Create a <code className="rounded bg-secondary px-1.5 py-0.5 font-mono text-xs">.env</code> file in the server directory.</p>
         <CodeBlock
-          code={`MONGO_URI=""  // MONGO ATLAS CONNECTION URI
+          code={`MONGO_URI="" 
 PORT=5000
 NODE_ENV="DEVELOPMENT"
 JWT_SECRET="supersecretkey123"
@@ -74,19 +86,75 @@ BASE_DOMAIN=localhost`}
         />
       </div>
 
+      {/* STEP 6: FRONTEND & BACKEND SETUP (Updated) */}
       <div>
         <h3 className="mb-2 text-base font-semibold text-foreground">Step 6: Run the Application</h3>
-        <p className="mb-3 text-sm text-muted-foreground">Start the frontend and backend in separate terminals.</p>
-        <CodeBlock
-          code={`# Terminal 1 — Frontend
-cd client
-npm run dev
+        <p className="mb-3 text-sm text-muted-foreground">Open two separate terminals to run the Backend and Frontend.</p>
+        
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Terminal 1: Backend API</p>
+            <CodeBlock
+              code={`cd server
+npm start
+# Server runs on http://localhost:5000`}
+            />
+          </div>
 
-# Terminal 2 — Backend
-cd server
-npm start`}
+          <div>
+            <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Terminal 2: Frontend Dashboard</p>
+            <CodeBlock
+              code={`cd client
+npm run dev
+# Dashboard runs on http://localhost:3000`}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* STEP 7: CHECK PODS */}
+      <div>
+        <h3 className="mb-2 text-base font-semibold text-foreground">Step 7: Check Running Stores</h3>
+        <p className="mb-3 text-sm text-muted-foreground">
+          Verify that pods are running inside the cluster.
+        </p>
+        <CodeBlock
+          code={`# List all namespaces
+kubectl get ns
+
+# Check pods for a specific store
+kubectl get pods -n store-xxxxx`}
         />
       </div>
+
+      {/* STEP 8: MANUAL DELETE (New Added) */}
+      <div>
+        <h3 className="mb-2 text-base font-semibold text-foreground">Step 8: Manual Store Deletion</h3>
+        <p className="mb-3 text-sm text-muted-foreground">
+          If a store gets stuck or you want to manually clean up a namespace.
+        </p>
+        <CodeBlock
+          code={`# 1. Find the namespace name
+kubectl get ns
+
+# 2. Force delete the namespace (Deletes all store resources)
+kubectl delete ns store-xxxxx`}
+        />
+        <div className="mt-2 flex items-center gap-2 text-xs text-red-500">
+          <Trash2 className="h-3 w-3" />
+          <span>Warning: This action is irreversible. All store data will be lost.</span>
+        </div>
+      </div>
+
+      {/* STEP 9 */}
+      <div>
+        <h3 className="mb-2 text-base font-semibold text-foreground">Step 9: Cleanup & Stop</h3>
+        <CodeBlock
+          code={`minikube stop   # Stop Cluster
+minikube delete # Delete Cluster`}
+        />
+      </div>
+
     </div>
   </div>
 );
