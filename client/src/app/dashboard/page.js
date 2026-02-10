@@ -17,13 +17,21 @@ const Dashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const router = useRouter();
   const {isAuthenticated, isLoading} = useAuth();
+  const [isGettingStores, setIsGettingStores] = useState(false);
 
   
 
   const fetchStores = async() => {
-    const token = localStorage.getItem("jwt");
-    const stores = await api.get("/stores", token);
-    setStores(stores);
+    try {
+      setIsGettingStores(true);
+      const token = localStorage.getItem("jwt");
+      const stores = await api.get("/stores", token);
+      setStores(stores);
+    }catch {}
+    finally {
+      setIsGettingStores(false);
+    }
+    
   }
 
   useEffect(() => {
@@ -81,7 +89,7 @@ const Dashboard = () => {
         </Button>
       </div>
 
-      <StoreTable stores={stores} onDelete={handleDelete} />
+      <StoreTable stores={stores} onDelete={handleDelete}  isLoading={isGettingStores}/>
 
       <CreateStoreModal
         open={modalOpen}

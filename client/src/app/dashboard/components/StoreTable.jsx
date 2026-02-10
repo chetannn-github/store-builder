@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, ExternalLink } from "lucide-react";
+import { Trash2, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "../../_components/ui/button";
 import { Badge } from "../../_components/ui/badge";
 import {
@@ -44,16 +44,27 @@ const statusConfig = {
   
 };
 
-const StoreTable = ({ stores, onDelete }) => {
+const StoreTable = ({ stores, onDelete, isLoading }) => {
   if (!stores || stores.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
-        <p className="text-lg font-medium text-muted-foreground">
-          No stores deployed yet
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Click "Create New Store" to get started.
-        </p>
+
+        {!isLoading && (
+          <>
+            <p className="text-lg font-medium text-muted-foreground">
+              No stores deployed yet
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Click "Create New Store" to get started.
+            </p>
+          </>
+        )}
+
+
+        {isLoading && (<>
+              <Loader2 className="w-15 h-15 mr-2 animate-spin" />
+              Getting your stores
+            </>)}
       </div>
     );
   }
