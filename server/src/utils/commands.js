@@ -29,13 +29,7 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
   const myCustomImage = "chetannn/custom-store-builder"; 
   const imageTag = "v1";
 
-
-  const postStartScript = `
-    echo "Waiting for WordPress to initialize...";
-    sleep 30;
-    wp plugin activate woocommerce;
-    echo "WooCommerce Activated!";
-  `;
+  const postStartScript = "echo \"Waiting for WP...\"; sleep 30; wp plugin activate woocommerce; echo \"Activated!\";";
 
   const storeCreationCommand = `helm install ${namespace} ${chartPath} \
     --namespace ${namespace} \
