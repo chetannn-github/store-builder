@@ -47,7 +47,7 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
     }
 
   
-    if (form.type === 'medusa' && (!form.adminEmail || !form.adminPassword)) {
+    if (!form.adminEmail || !form.adminPassword) {
       return;
     }
 
@@ -112,31 +112,30 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
             </select>
           </div>
 
-          {form.type === "medusa" && (
-            <div className="space-y-4 border-l-2 pl-4  p-3 rounded-r-md animate-in fade-in slide-in-from-top-2">
-              <div className="space-y-2">
-                <Label htmlFor="email">Admin Email (Medusa)</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={form.adminEmail}
-                  onChange={(e) => handleChange("adminEmail", e.target.value)}
-                  disabled={loading}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Admin Password (Medusa)</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={form.adminPassword}
-                  onChange={(e) => handleChange("adminPassword", e.target.value)}
-                  disabled={loading}
-                />
-              </div>
+          <div className="space-y-4 border-l-2 pl-4  p-3 rounded-r-md animate-in fade-in slide-in-from-top-2">
+            <div className="space-y-2">
+              <Label htmlFor="email">Admin Email (Medusa)</Label>
+              <Input
+                id="email"
+                type="email"
+                value={form.adminEmail}
+                onChange={(e) => handleChange("adminEmail", e.target.value)}
+                disabled={loading}
+              />
             </div>
-          )}
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Admin Password (Medusa)</Label>
+              <Input
+                id="password"
+                type="password"
+                value={form.adminPassword}
+                onChange={(e) => handleChange("adminPassword", e.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
+         
 
           <DialogFooter>
             <Button
