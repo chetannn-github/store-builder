@@ -29,35 +29,42 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
   const myCustomImage = "chetannn/custom-store-builder"; 
   const imageTag = "v1";
 
-  const postStartScript = "echo \"Waiting for WP...\"; sleep 30; wp plugin activate woocommerce; echo \"Activated!\";";
+  const postStartScript = "echo Waiting-for-WP...; sleep 30; wp plugin activate woocommerce; echo Activated!;";
 
   const storeCreationCommand = `helm install ${namespace} ${chartPath} \
-    --namespace ${namespace} \
-    --create-namespace \
-    --set image.registry=docker.io \
-    --set image.repository="${myCustomImage}" \
-    --set image.tag="${imageTag}" \
-    --set service.type=ClusterIP \
-    --set service.port=80 \
-    --set store.type=${storeType} \
-    --set ingress.host=${domain} \
-    --set store.port=8080 \
-    --set wordpressUsername="admin" \
-    --set wordpressPassword="${password}" \
-    --set wordpressEmail="${email}" \
-    --set wordpressFirstName="Store" \
-    --set wordpressLastName="Owner" \
-    --set ingress.enabled=true \
-    --set ingress.hostname=${domain} \
-    --set ingress.className="${ingressClass}" \
-    --set livenessProbe.initialDelaySeconds=60 \
-    --set readinessProbe.initialDelaySeconds=60 \
-    --set lifecycleHooks.postStart.exec.command[0]="/bin/bash" \
-    --set lifecycleHooks.postStart.exec.command[1]="-c" \
-    --set lifecycleHooks.postStart.exec.command[2]="${postStartScript}" \
-    --values ${chartPath}/values-local.yaml \
-    \
-    --wait`;
+      --namespace ${namespace} \
+      --create-namespace \
+      \
+      --set image.registry=docker.io \
+      --set image.repository="${myCustomImage}" \
+      --set image.tag="${imageTag}" \
+      --set image.pullPolicy=Always \
+      \
+      --set service.type=ClusterIP \
+      --set service.port=80 \
+      \
+      --set store.type=${storeType} \
+      --set store.port=8080 \
+      \
+      --set wordpressUsername="admin" \
+      --set wordpressPassword="${password}" \
+      --set wordpressEmail="${email}" \
+      --set wordpressFirstName="Store" \
+      --set wordpressLastName="Owner" \
+      \
+      --set ingress.enabled=true \
+      --set ingress.hostname=${domain} \
+      --set ingress.className="traefik" \
+      \
+      --set livenessProbe.initialDelaySeconds=60 \
+      --set readinessProbe.initialDelaySeconds=60 \
+      \
+      --set lifecycleHooks.postStart.exec.command[0]="/bin/bash" \
+      --set lifecycleHooks.postStart.exec.command[1]="-c" \
+      --set lifecycleHooks.postStart.exec.command[2]='${postStartScript}' \
+      \
+      --values ${chartPath}/values-local.yaml \
+      --wait`;
 
   return storeCreationCommand;
 }
