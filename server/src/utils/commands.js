@@ -9,8 +9,7 @@ const __dirname = path.dirname(__filename);
 export const getStoreCreationCommand = (namespace, storeType, domain, adminEmail, adminPass) => {
     const chartFolder = (storeType === "medusa") ? "medusa" : "storefront"; 
     const chartPath = path.resolve(__dirname, `../charts/${chartFolder}`);
-    const isProduction = NODE_ENV === 'production';
-    const ingressClass = isProduction ? "traefik" : "nginx";
+    const ingressClass = "nginx";
 
     return storeType === "medusa" ?  
     getMedusaStoreCommand(adminEmail, adminPass, namespace, chartPath,storeType,domain, ingressClass ) :
