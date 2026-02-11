@@ -1,5 +1,5 @@
 import CodeBlock from "./CodeBlock";
-import { Alert, AlertDescription } from "../../_components/ui/alert";
+import { Alert, AlertDescription } from "../../../_components/ui/alert";
 import { AlertTriangle, CheckCircle, Terminal, Trash2 } from "lucide-react";
 
 const LocalSetup = () => (

@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react";
 import { BookOpen, Server, Layers } from "lucide-react";
-import { cn } from "../../lib/utils";
+import { cn } from "../../../lib/utils";
 import LocalSetup from "./_components/LocalSetup";
 import ProductionDeploy from "./_components/ProductionDeploy";
 import Architecture from "./_components/Architecture";

@@ -4,20 +4,19 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LogIn, UserPlus, Loader2, Box } from "lucide-react";
 
-import { Button } from "../_components/ui/button";
-import { Input } from "../_components/ui/input";
-import { Label } from "../_components/ui/label";
+import { Button } from "../../_components/ui/button";
+import { Input } from "../../_components/ui/input";
+import { Label } from "../../_components/ui/label";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../_components/ui/card";
+} from "../../_components/ui/card";
 
 
-import { useToast } from "@/app/_hooks/useToast";
-import { useAuth } from "../_hooks/useAuth";
+import { useAuth } from "../../_hooks/useAuth";
 
 const Auth = () => {
   const [mode, setMode] = useState("login");

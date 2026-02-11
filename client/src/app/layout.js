@@ -1,4 +1,3 @@
-import Navbar from "./_components/Navbar";
 import { AuthProvider } from "./_hooks/useAuth";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
@@ -15,7 +14,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          <Navbar/>
+          
           <Toaster
           position="top-right"
           toastOptions={{

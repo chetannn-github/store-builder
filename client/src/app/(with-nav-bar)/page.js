@@ -1,9 +1,9 @@
 "use client"
 import { Shield, Globe, Cloud, ArrowRight, Terminal } from "lucide-react";
-import { Button } from "./_components/ui/button";
-import { Card, CardContent } from "./_components/ui/card";
+import { Button } from "../_components/ui/button";
+import { Card, CardContent } from "../_components/ui/card";
 import Link from "next/link";
-import { useAuth } from "./_hooks/useAuth";
+import { useAuth } from "../_hooks/useAuth";
 
 
 const features = [
