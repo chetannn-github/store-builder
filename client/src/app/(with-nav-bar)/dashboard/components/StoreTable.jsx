@@ -40,8 +40,8 @@ const statusConfig = {
     className: "border-destructive/30 bg-destructive/10 text-destructive",
   },
   DELETING : {
-   label : "Deleting",
-   className: "border-destructive/30 bg-destructive/10 text-destructive"
+   label : "Deleting...",
+   className: "border-destructive/30 bg-destructive/10 text-destructive animate-pulse-fast animate-float"
   }
   
 };
