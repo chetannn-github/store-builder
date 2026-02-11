@@ -19,6 +19,7 @@ import {
 import { Button } from "../_components/ui/button";
 import { Input } from "../_components/ui/input";
 import { cn } from "../../lib/utils";
+import Loader from "../_components/Loader";
 
 /* ------------------ CONSTANTS ------------------ */
 
@@ -66,9 +67,13 @@ export default function Customize() {
   const [iframeKey, setIframeKey] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [deviceView, setDeviceView] = useState("desktop");
+  const [isIframeLoading, setIsIframeLoading] = useState(true);
 
   const scrollRef = useRef(null);
 
+  useEffect(() => {
+    setIsIframeLoading(true);
+  }, [iframeKey, storeUrl]);
   /* ------------------ EFFECTS ------------------ */
 
   useEffect(() => {
@@ -301,11 +306,19 @@ export default function Customize() {
             }}
           >
             {storeUrl ? (
-              <iframe
-                key={iframeKey}
-                src={storeUrl}
-                className="h-full w-full bg-background rounded-md shadow"
-              />
+              <>
+                {isIframeLoading && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-md">
+                      <Loader  label={"Loading Store..."}/>
+                    </div>
+                  )}
+                <iframe
+                  key={iframeKey}
+                  src={storeUrl}
+                  onLoad={() => setIsIframeLoading(false)}
+                  className="h-full w-full bg-background rounded-md shadow"
+                />
+              </>
             ) : (
               <div className="flex h-full items-center justify-center text-muted-foreground">
                 No preview available
