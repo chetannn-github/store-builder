@@ -28,8 +28,8 @@ import { useRouter } from "next/navigation";
 
 const statusConfig = {
   PROVISIONING: {
-    label: "Provisioning",
-    className: "border-warning/30 bg-warning/10 text-warning animate-pulse-slow",
+    label: "Provisioning...",
+    className: "border-warning/30 bg-warning/10 text-warning animate-pulse-fast animate-float ",
   },
   READY: {
     label: "Ready",
