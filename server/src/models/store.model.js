@@ -39,6 +39,14 @@ const storeSchema = new mongoose.Schema(
     },
     link : {
       type : String
+    }, 
+    adminEmail : {
+      type : String,
+      require: true
+    }, 
+    adminPassword : {
+      type : String, 
+      required : true,
     }
   },
   {

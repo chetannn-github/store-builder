@@ -28,8 +28,8 @@ import { useRouter } from "next/navigation";
 
 const statusConfig = {
   PROVISIONING: {
-    label: "Provisioning",
-    className: "border-warning/30 bg-warning/10 text-warning animate-pulse-slow",
+    label: "Provisioning...",
+    className: "border-warning/30 bg-warning/10 text-warning animate-pulse-fast animate-float ",
   },
   READY: {
     label: "Ready",
@@ -40,8 +40,8 @@ const statusConfig = {
     className: "border-destructive/30 bg-destructive/10 text-destructive",
   },
   DELETING : {
-   label : "Deleting",
-   className: "border-destructive/30 bg-destructive/10 text-destructive"
+   label : "Deleting...",
+   className: "border-destructive/30 bg-destructive/10 text-destructive animate-pulse-fast animate-float"
   }
   
 };
