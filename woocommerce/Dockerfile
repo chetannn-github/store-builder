@@ -11,6 +11,10 @@ RUN curl -L -O https://downloads.wordpress.org/plugin/woocommerce.latest-stable.
     rm woocommerce.latest-stable.zip
 
 
-RUN chown -R 1001:1001 /opt/bitnami/wordpress/wp-content/plugins
+RUN mkdir -p /opt/bitnami/wordpress/wp-content/mu-plugins
+COPY iframe-fix.php /opt/bitnami/wordpress/wp-content/mu-plugins/iframe-fix.php
+
+RUN chown -R 1001:1001 /opt/bitnami/wordpress
+
 
 USER 1001

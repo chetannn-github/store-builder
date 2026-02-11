@@ -29,7 +29,15 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
   const myCustomImage = "chetannn/custom-store-builder"; 
   const imageTag = "v1";
 
-  const postStartScript = "echo Waiting-for-WP...; sleep 30; wp plugin activate woocommerce; echo Activated!;";
+  const devPostStartScript = `
+    echo "Waiting for WordPress to initialize...";
+    sleep 30;
+    wp plugin activate woocommerce;
+    echo "WooCommerce Activated!";
+  `;
+
+  const prodPostStartScript = "echo Waiting-for-WP...; sleep 30; wp plugin activate woocommerce; echo Activated!;";
+  const postStartScript = NODE_ENV === 'production' ? prodPostStartScript : devPostStartScript;
 
   const storeCreationCommand = `helm install ${namespace} ${chartPath} \
       --namespace ${namespace} \
@@ -54,7 +62,7 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
       \
       --set ingress.enabled=true \
       --set ingress.host=${domain} \
-      --set ingress.className="traefik" \
+      --set ingress.className=${ingressClass} \
       \
       --set livenessProbe.initialDelaySeconds=60 \
       --set readinessProbe.initialDelaySeconds=60 \

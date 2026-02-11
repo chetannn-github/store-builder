@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, ExternalLink, Loader2 } from "lucide-react";
+import { Trash2, ExternalLink, Loader2, Globe, Paintbrush } from "lucide-react";
 import { Button } from "../../_components/ui/button";
 import { Badge } from "../../_components/ui/badge";
 import {
@@ -24,6 +24,7 @@ import {
 } from "../../_components/ui/alert-dialog";
 import { cn } from "../../../lib/utils";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const statusConfig = {
   PROVISIONING: {
@@ -46,7 +47,7 @@ const statusConfig = {
 };
 
 const StoreTable = ({ stores, onDelete, isLoading, isDeleting }) => {
-  
+  const router = useRouter();
   if (!stores || stores.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
@@ -135,6 +136,23 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting }) => {
                 </TableCell>
 
                 <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1">
+                      {store.link && (
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-accent-foreground hover:bg-accent hover:text-primary"
+                            onClick={() =>
+                              router.replace(`/customize?name=${encodeURIComponent(store.name)}&url=${encodeURIComponent(store.link)}`)
+                            }
+                            title="Customize store"
+                          >
+                            <Paintbrush className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
@@ -169,6 +187,7 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting }) => {
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                </div>
                 </TableCell>
               </TableRow>
             );

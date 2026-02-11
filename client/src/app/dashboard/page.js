@@ -27,7 +27,7 @@ const Dashboard = () => {
       setIsGettingStores(true);
       const token = localStorage.getItem("jwt");
       const stores = await api.get("/stores", token);
-      setStores(stores);
+      if(typeof stores === 'object' && stores.length > 0) setStores(stores);
     }catch {}
     finally {
       setIsGettingStores(false);
