@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Button } from "../../_components/ui/button";
-import { Input } from "../../_components/ui/input";
-import { Label } from "../../_components/ui/label";
+import { Button } from "../../../_components/ui/button";
+import { Input } from "../../../_components/ui/input";
+import { Label } from "../../../_components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../_components/ui/dialog";
+} from "../../../_components/ui/dialog";
 
 import api from "@/lib/api";
 import toast from "react-hot-toast";

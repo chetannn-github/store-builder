@@ -3,10 +3,10 @@ import toast from "react-hot-toast";
 import { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
 
-import { Button } from "../_components/ui/button";
+import { Button } from "../../_components/ui/button";
 import CreateStoreModal from "./components/CreateStoreModal";
 import StoreTable from "./components/StoreTable";
-import { useAuth } from "../_hooks/useAuth";
+import { useAuth } from "../../_hooks/useAuth";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 

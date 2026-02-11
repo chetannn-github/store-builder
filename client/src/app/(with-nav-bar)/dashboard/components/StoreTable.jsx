@@ -1,8 +1,8 @@
 "use client";
 
 import { Trash2, ExternalLink, Loader2, Globe, Paintbrush } from "lucide-react";
-import { Button } from "../../_components/ui/button";
-import { Badge } from "../../_components/ui/badge";
+import { Button } from "../../../_components/ui/button";
+import { Badge } from "../../../_components/ui/badge";
 import {
   Table,
   TableBody,
@@ -10,7 +10,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../_components/ui/table";
+} from "../../../_components/ui/table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,8 +21,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../../_components/ui/alert-dialog";
-import { cn } from "../../../lib/utils";
+} from "../../../_components/ui/alert-dialog";
+import { cn } from "../../../../lib/utils";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 

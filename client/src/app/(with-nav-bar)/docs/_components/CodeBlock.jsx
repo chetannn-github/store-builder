@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { Check, Copy } from "lucide-react";
-import { Button } from "../../_components/ui/button";
-import { cn } from "../../../lib/utils";
+import { Button } from "../../../_components/ui/button";
+import { cn } from "../../../../lib/utils";
 
 const CodeBlock = ({ code, language = "bash", className }) => {
   const [copied, setCopied] = useState(false);
