@@ -14,6 +14,12 @@ RUN curl -L -O https://downloads.wordpress.org/plugin/woocommerce.latest-stable.
 RUN mkdir -p /opt/bitnami/wordpress/wp-content/mu-plugins
 COPY iframe-fix.php /opt/bitnami/wordpress/wp-content/mu-plugins/iframe-fix.php
 
+
+RUN mkdir -p /opt/bitnami/wordpress/wp-content/mu-plugins
+COPY custom.php /opt/bitnami/wordpress/wp-content/mu-plugins/custom.php
+
+
+
 RUN chown -R 1001:1001 /opt/bitnami/wordpress
 
 

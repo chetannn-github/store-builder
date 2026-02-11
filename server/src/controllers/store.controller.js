@@ -33,7 +33,7 @@ export const createStore = async (req, res) => {
       });
     }
 
-    if(type === 'medusa' && (!adminEmail || !adminPassword)) {
+    if(!adminEmail || !adminPassword){
       return res.status(400).json({
         success: false,
         message: "Please provide adminEmail and adminPassword !",
@@ -59,6 +59,8 @@ export const createStore = async (req, res) => {
       domain, 
       status: "PROVISIONING",
       owner: userId,
+      adminEmail, 
+      adminPassword
     });
 
     res.status(202).json({
