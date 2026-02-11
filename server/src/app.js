@@ -17,6 +17,7 @@ app.use(
   cors({
     origin: ["http://store-builder.chickenkiller.com:3000", 
       "http://localhost:3000","http://51.21.19.170:3000",
+      "https://store.instaconnector.in"
       
     ],
     credentials : true
