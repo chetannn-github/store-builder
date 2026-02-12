@@ -226,7 +226,7 @@ export const deployStorefront = async (req, res) => {
         const command = getMedusaStoreCommand(namespace,slug,domain,backendUrl,publishableKey);
         await executeHelmCommand(command);
 
-        store.deploymentStatus = "READY";
+        store.status = "READY";
         store.updatedAt = new Date();
         await store.save();
 
