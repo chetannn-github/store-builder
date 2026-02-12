@@ -65,3 +65,17 @@ export const deleteStoreResources = async (namespace) => {
     throw error;
   }
 };
+
+
+export const executeHelmCommand = async(command) => {
+  try {
+    console.log(`[Helm] Deploying`);
+    const { stdout } = await execPromise(command);
+    console.log(`[Helm] Success: ${stdout}`);
+    return true;
+
+  } catch (error) {
+    console.error(`[Helm] Error: ${error.stderr || error.message}`);
+    throw new Error(`Helm installation failed: ${error.message}`);
+  }
+}
