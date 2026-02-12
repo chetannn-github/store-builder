@@ -1,18 +1,19 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { BASE_DOMAIN, NODE_ENV } from "../config/env.js";
+import { MEDUSA_STORE_ADMIN_FOLDER, MEDUSA_STORE_FOLDER, WOOCOMMERCE_FOLDER } from "./constant.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
 export const getStoreCreationCommand = (namespace, storeType, domain, adminEmail, adminPass,slug) => {
-    const chartFolder = (storeType === "medusa") ? "medusa" : "storefront"; 
+    const chartFolder = (storeType === "medusa") ? MEDUSA_STORE_ADMIN_FOLDER : WOOCOMMERCE_FOLDER; 
     const chartPath = path.resolve(__dirname, `../charts/${chartFolder}`);
     const ingressClass = "nginx";
 
     return storeType === "medusa" ?  
-    getMedusaStoreCommand(adminEmail, adminPass, namespace, chartPath,slug ) :
+    getMedusaAdminStoreCommand(adminEmail, adminPass, namespace, chartPath,slug ) :
     getWoocommerceStoreCommand(adminEmail,adminPass,namespace,chartPath,storeType,domain,ingressClass) ;
    
 }
@@ -76,7 +77,7 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
   return storeCreationCommand;
 }
 
-const getMedusaStoreCommand = (adminEmail, adminPass, namespace, chartPath,slug ) => {
+const getMedusaAdminStoreCommand = (adminEmail, adminPass, namespace, chartPath,slug ) => {
     
 
       const medusaStoreCommand = `helm install ${namespace} ${chartPath} \
@@ -92,3 +93,21 @@ const getMedusaStoreCommand = (adminEmail, adminPass, namespace, chartPath,slug 
 
     return medusaStoreCommand;
 }
+
+
+
+export const getMedusaStoreCommand = (namespace, slug, domain, backendUrl, publishableKey) => {
+    const releaseName = `front-${slug}`; 
+    const chartFolder = MEDUSA_STORE_FOLDER; 
+    const chartPath = path.resolve(__dirname, `../charts/${chartFolder}`);
+
+    const command = `helm upgrade --install ${releaseName} ${chartPath} \
+    --namespace ${namespace} \
+    --set slug="${slug}" \
+    --set domain="${domain}" \
+    --set backendUrl="${backendUrl}" \
+    --set publishableKey="${publishableKey}" \
+    --wait`;
+
+    return command;
+};
