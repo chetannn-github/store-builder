@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { createK8sNamespace, deleteStoreResources, deployStoreHelmChart } from '../services/k8sServices.js';
 import { getStoreDomain } from '../utils/helper.js';
 import { MAX_STORE_LIMIT } from '../utils/constant.js';
+import { PROTOCOL } from '../config/env.js';
 
 
 
@@ -75,7 +76,7 @@ export const createStore = async (req, res) => {
         await deployStoreHelmChart(namespace, name, type, domain, adminEmail, adminPassword,slug);
         await Store.findByIdAndUpdate(store._id, {
           status: "READY",
-          link: `https://${domain}${type === "medusa" ? "/app" : ""}`
+          link: `${PROTOCOL}${domain}${type === "medusa" ? "/app" : ""}`
         });
 
         console.log(`[Background] Store ${name} is now READY! 🟢`);
