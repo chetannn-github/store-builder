@@ -16,7 +16,7 @@ spec:
     # 2. Admin Panel Port
     - name: admin
       port: 7001
-      targetPort: 7001
+      targetPort: 9000
       protocol: TCP
   selector:
     app: {{ .Release.Name }}
