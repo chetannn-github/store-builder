@@ -11,7 +11,7 @@ export const getStoreDomain = (namespace,customSlug) => {
 
 export const getStoreAdminUrl = (storeType, slug) => {
     if(storeType === "medusa") {
-        return `${PROTOCOL}admin-${slug}.${BASE_DOMAIN}`
+        return `${PROTOCOL}admin-${slug}.${BASE_DOMAIN}/app`
     } 
 
     return `${PROTOCOL}${slug}.${BASE_DOMAIN}/wp-admin`
