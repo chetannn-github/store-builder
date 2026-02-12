@@ -47,7 +47,7 @@ spec:
             
             # Storefront
             - name: STORE_CORS
-              value: "http://{{ .Values.slug }}.{{ .Values.domain }},https://{{ .Values.slug }}.{{ .Values.domain }},http://localhost:8000,http://localhost:3000"
+              value: "http://{{ .Values.slug }}.{{ .Values.domain }},https://{{ .Values.slug }}.{{ .Values.domain }},http://localhost:8000,https://test-shop.instaconnector.in"
             
             - name: ADMIN_EMAIL
               value: {{ .Values.adminUser.email | quote }}
