@@ -7,9 +7,10 @@ import ProductionDeploy from "./_components/ProductionDeploy";
 import Architecture from "./_components/Architecture";
 
 const sections = [
+  { id: "architecture", label: "Architecture", icon: Layers },
   { id: "local", label: "Local Setup", icon: BookOpen },
   { id: "production", label: "Production (EC2)", icon: Server },
-  { id: "architecture", label: "Architecture", icon: Layers },
+  
 ];
 
 const Documentation = () => {
