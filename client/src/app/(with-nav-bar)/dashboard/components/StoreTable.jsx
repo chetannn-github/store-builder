@@ -43,7 +43,7 @@ import { SetupInstructions } from "./SetupInstructions";
 
 const statusConfig = {
   PROVISIONING: {
-    label: "Provisioning...",
+    label: "Deploying...",
     className: "border-warning/30 bg-warning/10 text-warning animate-pulse-fast animate-float ",
   },
   BACKEND_READY: {
@@ -51,7 +51,7 @@ const statusConfig = {
     className: "border-primary/30 bg-primary/10 text-primary animate-pulse-fast animate-float",
   },
   READY: {
-    label: "Ready",
+    label: "Live",
     className: "border-success/30 bg-success/10 text-success",
   },
   FAILED: {
@@ -61,7 +61,11 @@ const statusConfig = {
   DELETING : {
    label : "Deleting...",
    className: "border-destructive/30 bg-destructive/10 text-destructive animate-pulse-fast animate-float"
-  }
+  },
+  DEPLOYING_FRONTEND: {
+    label: "Deploying...",
+    className: "border-warning/30 bg-warning/10 text-warning animate-pulse-fast animate-float ",
+  },
 
 };
 
@@ -72,7 +76,7 @@ const statusConfig = {
 
 
 
-const StoreTable = ({ stores, onDelete, isLoading, isDeleting }) => {
+const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => {
   const router = useRouter();
   if (!stores || stores.length === 0) {
     return (
@@ -230,7 +234,7 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting }) => {
                 {store.status === "BACKEND_READY" && (
                   <TableRow key={`${store._id}-setup`}>
                     <TableCell colSpan={6} className="p-0">
-                      <SetupInstructions store={store} />
+                      <SetupInstructions store={store} fetchStores={fetchStores}/>
                     </TableCell>
                   </TableRow>
                 )}

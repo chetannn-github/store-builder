@@ -107,7 +107,7 @@ const Dashboard = () => {
         </Button>
       </div>
 
-      <StoreTable stores={stores} onDelete={handleDelete}  isLoading={isGettingStores} isDeleting={isDeleting}/>
+      <StoreTable stores={stores} onDelete={handleDelete}  isLoading={isGettingStores} isDeleting={isDeleting} fetchStores={fetchStores}/>
 
       <CreateStoreModal
         open={modalOpen}

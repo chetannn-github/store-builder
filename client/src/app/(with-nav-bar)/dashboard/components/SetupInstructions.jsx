@@ -18,7 +18,7 @@ import { useState } from "react";
 import api from "@/lib/api";
 import toast from "react-hot-toast";
 
-export const SetupInstructions = ({ store }) => {
+export const SetupInstructions = ({ store, fetchStores}) => {
   const [expanded, setExpanded] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [publishableKey, setPublishableKey] = useState("");
@@ -43,6 +43,7 @@ export const SetupInstructions = ({ store }) => {
     if (!res.success) {
       throw new Error(res?.message || "Setup failed");
     }
+    await fetchStores();
 
     toast.success(res.message);
 
