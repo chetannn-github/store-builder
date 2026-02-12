@@ -6,7 +6,7 @@ spec:
   ingressClassName: nginx
   rules:
     # URL: slug.instaconnector.in (e.g. nike.instaconnector.in)
-    - host: "medusa-{{ .Values.slug }}.{{ .Values.domain }}"
+    - host: "{{ .Values.slug }}.{{ .Values.domain }}"
       http:
         paths:
           - path: /
