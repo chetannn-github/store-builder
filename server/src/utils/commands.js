@@ -1,18 +1,18 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import { NODE_ENV } from "../config/env.js";
+import { BASE_DOMAIN, NODE_ENV } from "../config/env.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-export const getStoreCreationCommand = (namespace, storeType, domain, adminEmail, adminPass) => {
+export const getStoreCreationCommand = (namespace, storeType, domain, adminEmail, adminPass,slug) => {
     const chartFolder = (storeType === "medusa") ? "medusa" : "storefront"; 
     const chartPath = path.resolve(__dirname, `../charts/${chartFolder}`);
     const ingressClass = "nginx";
 
     return storeType === "medusa" ?  
-    getMedusaStoreCommand(adminEmail, adminPass, namespace, chartPath,storeType,domain, ingressClass ) :
+    getMedusaStoreCommand(adminEmail, adminPass, namespace, chartPath,slug ) :
     getWoocommerceStoreCommand(adminEmail,adminPass,namespace,chartPath,storeType,domain,ingressClass) ;
    
 }
@@ -76,15 +76,17 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
   return storeCreationCommand;
 }
 
-const getMedusaStoreCommand = (adminEmail, adminPass, namespace, chartPath,storeType,domain, ingressClass ) => {
-  const medusaStoreCommand = `helm install ${namespace} ${chartPath} \
+const getMedusaStoreCommand = (adminEmail, adminPass, namespace, chartPath,slug ) => {
+    
+
+      const medusaStoreCommand = `helm install ${namespace} ${chartPath} \
       --namespace ${namespace} \
       --create-namespace \
-      --set ingress.className="${ingressClass}" \
-      --set ingress.host=${domain} \
-      --set store.type=${storeType} \
+      --set slug=${slug} \
+      --set domain=${BASE_DOMAIN} \
+      --set ingress.className="nginx" \
       --set adminUser.email="${adminEmail}" \
-      --set adminUser.password="${adminPass}"\
+      --set adminUser.password="${adminPass}" \
       --values ${chartPath}/values-local.yaml \
       --wait`;
 

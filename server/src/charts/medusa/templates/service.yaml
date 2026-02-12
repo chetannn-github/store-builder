@@ -7,8 +7,16 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
+    # 1. Backend API Port
+    - name: backend
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+    
+    # 2. Admin Panel Port
+    - name: admin
+      port: 7001
+      targetPort: 7001
       protocol: TCP
   selector:
     app: {{ .Release.Name }}
