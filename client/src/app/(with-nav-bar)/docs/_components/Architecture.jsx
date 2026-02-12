@@ -1,110 +1,194 @@
 const Architecture = () => (
-  <div className="space-y-8">
+  <div className="space-y-10">
+    {/* Heading */}
     <div>
-      <h2 className="mb-4 text-2xl font-bold text-foreground">Architecture & Usage</h2>
+      <h2 className="mb-4 text-2xl font-bold text-foreground">
+        Architecture & System Design
+      </h2>
       <p className="text-muted-foreground">
-        Understand the system architecture, networking model, and how to use the orchestrator effectively.
+        This section explains how the platform works internally and from
+        user perspective.
       </p>
     </div>
 
-    {/* System Flow */}
+    {/* User Perspective */}
     <div>
-      <h3 className="mb-4 text-lg font-semibold text-foreground">System Flow</h3>
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
+        1️⃣ User Flow
+      </h3>
+
+      <div className="space-y-3 text-sm text-muted-foreground">
+        <p>User opens:</p>
+
+        <div className="rounded-md bg-secondary/50 p-3 font-mono">
+          https://store.instaconnector.in
+        </div>
+
+        <p>User clicks <b>Create Store</b>.</p>
+
+        <p>
+          A user can create maximum <b>3 stores</b>.  
+          If limit is reached, backend blocks new creation.
+        </p>
+
+        <p>
+          After clicking create, store status becomes:
+        </p>
+
+        <ul className="list-disc list-inside ml-4 space-y-1">
+          <li>PROVISIONING</li>
+          <li>READY</li>
+          <li>FAILED (if error happens)</li>
+        </ul>
+      </div>
+    </div>
+
+    {/* Async Creation */}
+    <div>
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
+        2️⃣ Asynchronous Store Creation
+      </h3>
+
+      <div className="rounded-lg border border-border bg-card p-5 text-sm text-muted-foreground space-y-2">
+        <p>
+          Store creation is asynchronous.
+        </p>
+
+        <p>
+          Backend does NOT wait for Kubernetes to finish.
+          It immediately returns a response to frontend.
+        </p>
+
+        <p>
+          Store status is saved in database as <b>CREATING</b>.
+        </p>
+
+        <p>
+          Backend runs Helm deployment in background.
+        </p>
+      </div>
+    </div>
+
+    {/* Polling */}
+    <div>
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
+        3️⃣ Frontend Polling System
+      </h3>
+
+      <div className="rounded-lg border border-border bg-card p-5 text-sm text-muted-foreground space-y-2">
+        <p>
+          Frontend polls backend API every few seconds.
+        </p>
+
+        <p>Example:</p>
+
+        <div className="rounded-md bg-secondary/50 p-3 font-mono">
+          GET /api/stores
+        </div>
+
+        <p>
+          When Kubernetes pod becomes ready,
+          backend updates store status to <b>READY</b>.
+        </p>
+
+        <p>
+          Polling automatically updates UI.
+        </p>
+      </div>
+    </div>
+
+    {/* URL Structure */}
+    <div>
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
+        4️⃣ URL Structure
+      </h3>
+
+      <div className="space-y-4 text-sm text-muted-foreground">
+
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h4 className="font-semibold text-foreground mb-2">
+            WordPress Store (slug: papa)
+          </h4>
+
+          <div className="font-mono space-y-1">
+            <div>https://papa.instaconnector.in</div>
+            <div>https://papa.instaconnector.in/wp-admin</div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h4 className="font-semibold text-foreground mb-2">
+            Medusa Store (slug: papa)
+          </h4>
+
+          <div className="font-mono space-y-1">
+            <div>Storefront → https://papa.instaconnector.in</div>
+            <div>API → https://api-papa.instaconnector.in</div>
+            <div>Admin → https://admin-papa.instaconnector.in/app</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {/* Traffic Flow */}
+    <div>
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
+        5️⃣ Production Traffic Flow
+      </h3>
+
       <div className="overflow-x-auto rounded-lg border border-border bg-secondary/30 p-6">
         <div className="flex flex-wrap items-center justify-center gap-3 text-sm font-medium">
-          <span className="rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-primary">
-            React UI
+          <span className="rounded-lg bg-primary/10 px-4 py-2 text-primary">
+            User
           </span>
-          <span className="text-muted-foreground">→</span>
-          <span className="rounded-lg border border-border bg-card px-4 py-2 text-foreground">
-            Node.js API
+          <span>→</span>
+          <span className="rounded-lg bg-card px-4 py-2">
+            Nginx (Server)
           </span>
-          <span className="text-muted-foreground">→</span>
-          <span className="rounded-lg border border-border bg-card px-4 py-2 text-foreground">
-            Helm Chart
+          <span>→</span>
+          <span className="rounded-lg bg-card px-4 py-2">
+            Ingress-Nginx
           </span>
-          <span className="text-muted-foreground">→</span>
-          <span className="rounded-lg border border-border bg-card px-4 py-2 text-foreground">
-            K8s Namespace
+          <span>→</span>
+          <span className="rounded-lg bg-card px-4 py-2">
+            K3s Service
           </span>
-          <span className="text-muted-foreground">→</span>
-          <span className="rounded-lg border border-success/30 bg-success/10 px-4 py-2 text-success">
-            WordPress Pod
+          <span>→</span>
+          <span className="rounded-lg bg-success/10 px-4 py-2 text-success">
+            Store Pod
           </span>
         </div>
       </div>
     </div>
 
-    {/* Networking */}
+    {/* Data Isolation */}
     <div>
-      <h3 className="mb-3 text-lg font-semibold text-foreground">Networking</h3>
-      <div className="rounded-lg border border-border bg-card p-5">
-        <p className="mb-3 text-sm text-muted-foreground">
-          The orchestrator uses <strong className="text-foreground">nip.io</strong> for automatic wildcard DNS resolution.
-          This eliminates the need for manual DNS configuration.
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
+        6️⃣ Store Isolation & Data Safety
+      </h3>
+
+      <div className="rounded-lg border border-border bg-card p-5 text-sm text-muted-foreground space-y-2">
+        <p>Each store runs in its own Kubernetes namespace.</p>
+        <p>Each store has its own Persistent Volume.</p>
+        <p>If pod restarts, data remains safe.</p>
+        <p>Stores are isolated from each other.</p>
+      </div>
+    </div>
+
+    {/* Deletion */}
+    <div>
+      <h3 className="mb-4 text-lg font-semibold text-foreground">
+        7️⃣ Store Deletion
+      </h3>
+
+      <div className="rounded-lg border border-border bg-card p-5 text-sm text-muted-foreground space-y-2">
+        <p>
+          When user clicks delete, backend runs Helm uninstall.
         </p>
-        <div className="rounded-md bg-secondary/50 p-3 font-mono text-sm">
-          <span className="text-muted-foreground">{"<store-slug>"}</span>
-          <span className="text-foreground">.{"<base-ip>"}.nip.io</span>
-          <span className="text-muted-foreground"> → resolves to </span>
-          <span className="text-primary">{"<base-ip>"}</span>
-        </div>
-      </div>
-    </div>
-
-    {/* Ingress */}
-    <div>
-      <h3 className="mb-3 text-lg font-semibold text-foreground">Ingress Controllers</h3>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-border bg-card p-5">
-          <h4 className="mb-2 font-semibold text-foreground">Local (Minikube)</h4>
-          <p className="text-sm text-muted-foreground">
-            Uses the <strong className="text-foreground">Nginx Ingress Controller</strong> enabled
-            via Minikube addons. Routes traffic based on host headers.
-          </p>
-        </div>
-        <div className="rounded-lg border border-border bg-card p-5">
-          <h4 className="mb-2 font-semibold text-foreground">Production (EC2)</h4>
-          <p className="text-sm text-muted-foreground">
-            Uses <strong className="text-foreground">Traefik</strong>, bundled with K3s by default.
-            Automatically discovers Ingress resources and routes traffic.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Persistence */}
-    <div>
-      <h3 className="mb-3 text-lg font-semibold text-foreground">Persistence</h3>
-      <div className="rounded-lg border border-border bg-card p-5">
-        <p className="text-sm text-muted-foreground">
-          Each WooCommerce store uses <strong className="text-foreground">Persistent Volume Claims (PVCs)</strong> to
-          ensure database data survives pod restarts and redeployments. This guarantees data durability
-          across the lifecycle of each store instance.
+        <p>
+          All resources (pod, service, ingress, storage) are removed.
         </p>
-      </div>
-    </div>
-
-    {/* Usage Workflow */}
-    <div>
-      <h3 className="mb-4 text-lg font-semibold text-foreground">Usage Workflow</h3>
-      <div className="space-y-3">
-        {[
-          { step: "1", title: "Create Store", desc: 'Click "Create New Store" in the Dashboard and fill in the store details.' },
-          { step: "2", title: 'Wait for "READY"', desc: "The orchestrator provisions a Kubernetes namespace, deploys the Helm chart, and starts the WordPress pod." },
-          { step: "3", title: "Access Store", desc: "Once the status turns READY, click the store URL to access your WooCommerce instance." },
-          { step: "4", title: "Delete / Teardown", desc: "Click the delete icon to completely tear down all Kubernetes resources for that store." },
-        ].map((item) => (
-          <div key={item.step} className="flex gap-4 rounded-lg border border-border bg-card p-4">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-              {item.step}
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground">{item.title}</h4>
-              <p className="mt-0.5 text-sm text-muted-foreground">{item.desc}</p>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   </div>

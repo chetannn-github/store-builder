@@ -1,5 +1,5 @@
 "use client"
-import { Shield, Globe, Cloud, ArrowRight, Terminal } from "lucide-react";
+import { Shield, Globe, Cloud, ArrowRight, Terminal, Boxes, RefreshCw, Rocket } from "lucide-react";
 import { Button } from "../_components/ui/button";
 import { Card, CardContent } from "../_components/ui/card";
 import Link from "next/link";
@@ -8,24 +8,24 @@ import { useAuth } from "../_hooks/useAuth";
 
 const features = [
   {
-    icon: Shield,
-    title: "Namespace Isolation",
+    icon: Boxes, 
+    title: "Private Store Rooms",
     description:
-      "Each store runs in its own Kubernetes namespace with dedicated resources, ensuring complete security and isolation between tenants.",
+      "Every store gets its own private space (Namespace) in the cloud. This means one store's data can never mix with or peek into another store's data.",
   },
   {
-    icon: Globe,
-    title: "Instant DNS",
+    icon: RefreshCw,
+    title: "One-Click Control",
     description:
-      "Automatic wildcard DNS via nip.io — every store gets a unique, accessible URL instantly without manual DNS configuration.",
+      "Everything is automatic. From building the store's database to deleting the entire setup, the system handles the heavy lifting with just one click.",
   },
   {
-    icon: Cloud,
-    title: "Hybrid Deploy",
+    icon: Rocket,
+    title: "One-Click Provisioning",
     description:
-      "Seamlessly switch between local Minikube development and production AWS EC2 deployments with a single environment variable.",
+      "Create fully configured WooCommerce or Medusa stores instantly. The platform automatically provisions database, backend, services, and ingress in seconds.",
   },
-];
+]
 
 const Index = () => {
   const {isLoading} = useAuth();
@@ -47,13 +47,12 @@ const Index = () => {
           </div>
 
           <h1 className="mb-6 text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            Launch WooCommerce Stores{" "}
+            Launch E-Commerce Stores{" "}
             <span className="text-primary">in Seconds</span>
           </h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Hybrid Cloud Orchestration using Kubernetes, Helm, and Node.js.
-            Deploy locally on Minikube or globally on AWS EC2.
+            Launch WooCommerce or Medusa stores in seconds with automated setup, database, and domain configuration — no manual DevOps needed.
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">

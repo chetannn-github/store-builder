@@ -1,201 +1,292 @@
-# 🚀 ONLINE STORE BUILDER
 
-Online Store Builder is a platform that provisions **isolated online
-stores on Kubernetes**.\
-It works seamlessly in both **Local (Minikube)** and **Production (AWS
-EC2 + K3s)** environments using a single codebase.
+#  Auto Store Builder
+
+Auto Store Builder is a fully automated e-commerce store provisioning platform built using:
+
+- Docker
+- Kubernetes (Minikube / K3s)
+- Helm
+- Nginx Ingress
+- Node.js (Backend)
+- Next.js (Frontend)
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
 ![Tech](https://img.shields.io/badge/Stack-Node.js%20%7C%20Kubernetes%20%7C%20Helm-blue)
 
-------------------------------------------------------------------------
+Users can create two types of stores:
 
-## 🌟 What does this platform do?
-
-The platform allows users to create a fully functional online store with
-a single request.\
-Once a store name is provided, a live domain is automatically generated
-and routed to a dedicated Kubernetes namespace.
-
-### Key Highlights
-
--   **Hybrid Cloud Support**\
-    Automatically adapts based on environment:
-
-    -   Local → Minikube + localhost
-    -   Production → AWS EC2 + K3s + nip.io domains
-
--   **Instant Domains using `nip.io`**\
-    `store-name.<EC2_PUBLIC_IP>.nip.io`
-
--   **Strong Isolation**
-
-    -   One Kubernetes namespace per store
-    -   CPU & memory limits enforced
-
--   **Clean Store Deletion**
-
-    -   Helm release removed
-    -   Namespace deleted
-    -   Persistent volumes cleaned
-
-------------------------------------------------------------------------
-
-## 🏗️ How the system works
-
-**Flow:**  
-`React Dashboard` → `Node.js API` → `Helm Orchestrator` → `Kubernetes Cluster`
-
-1. **Store Request**  
-   User requests a new store (example: *“Nike Clone”*).
-
-2. **Validation**  
-   Backend checks:
-   - User limits
-   - Namespace availability
-
-3. **Provisioning**  
-   - Creates a new Kubernetes namespace  
-   - Applies resource quotas  
-   - Runs `helm install` with dynamic values (DB, ingress, domains)
-
-4. **Traffic Routing**  
-   Ingress routes traffic to the correct store using the domain name.
+1. WordPress (WooCommerce)
+2. Medusa JS (Headless Commerce)
 
 ---
 
+# 🏗 Store Creation (How It Works)
 
-------------------------------------------------------------------------
+When a user clicks **"Create Store"**, the system automatically:
 
+1. Executes a Helm command from the backend
+2. Creates Kubernetes resources (Pod, Service, Ingress)
+3. Maps domain dynamically
+4. Generates admin credentials
+5. Makes the store live
 
+No manual DevOps work required.
 
-## 💻 Local Setup (Minikube)
+---
 
-Start Kubernetes:
+# 🏪 Store Types
+
+## 1️⃣ WordPress (WooCommerce)
+
+- WooCommerce plugin pre-installed in Docker image
+- Admin credentials auto-generated
+- Ready-to-use after deployment
+
+Example (slug: `papa`):
+
+Customer:
+https://papa.instaconnector.in
+
+Admin:
+https://papa.instaconnector.in/wp-admin
+
+---
+
+## 2️⃣ Medusa JS (Headless Store)
+
+Deployment Flow:
+
+1. Backend Admin deployed
+2. Admin credentials auto-created
+3. Publishable key generated
+4. Frontend connected via publishable key
+
+Example (slug: `papa`):
+
+API:
+https://api-papa.instaconnector.in
+
+Admin:
+https://admin-papa.instaconnector.in/app
+
+Storefront:
+https://papa.instaconnector.in
+
+---
+---
+
+# 🖥 1️⃣ Local Deployment (Minikube)
+
+Used for development and testing.
+
+## Prerequisites
+
+```bash
+docker --version
+node -v
+npm -v
+kubectl version --client
+minikube version
+```
+
+---
+
+## Start Minikube
 
 ```bash
 minikube start --driver=docker
 minikube addons enable ingress
 ```
 
-Expose services:
+Verify:
+
+```bash
+kubectl get nodes
+kubectl get pods -A
+```
+
+---
+
+## Enable Tunnel
 
 ```bash
 minikube tunnel
 ```
 
-Run the platform:
+---
+
+## Install Helm
 
 ```bash
-# Backend
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm version
+```
+
+---
+
+## Run Backend
+
+```bash
 cd server
 npm install
 npm start
+```
 
-# Frontend
-cd dashboard
+Test:
+
+```bash
+curl http://localhost:5000
+```
+
+---
+
+## Run Frontend
+
+```bash
+cd client
 npm install
 npm run dev
 ```
 
+Open:
+
+http://localhost:3000
+
 ---
 
-------------------------------------------------------------------------
+## Deploy Store Locally
 
-## ☁️ Production Deployment (AWS EC2 + K3s)
-
-### Infrastructure Requirements
-
--   Ubuntu 22.04
--   t3.medium (minimum)
-
-### Security Group Rules
-
-Ports to open: **22, 80, 443, 5000**
-
-------------------------------------------------------------------------
-
-### Step 1: Install K3s
-
-``` bash
-curl -sfL https://get.k3s.io | sh -
-sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+```bash
+helm install papa ./charts/store --set ingress.host=papa.local
 ```
 
-------------------------------------------------------------------------
+Check:
 
-### Step 2: Install Helm & Node.js
-
-``` bash
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-sudo apt-get install -y nodejs
+```bash
+kubectl get pods
+kubectl get ingress
 ```
 
-------------------------------------------------------------------------
+---
 
-### Step 3: Clone Repository
+## Local Debugging
 
-``` bash
-git clone https://github.com/chetannn-github/store-builder.git
-cd store-builder
-cd server && npm install
-cd ../client && npm install && npm run build
+```bash
+kubectl describe pod <pod-name>
+kubectl logs <pod-name>
+minikube dashboard
 ```
 
-------------------------------------------------------------------------
+---
+---
 
-### Step 4: Environment Variables
+# ☁️ 2️⃣ Production Deployment (Azure VM + K3s)
 
-``` env
-NODE_ENV=production
-PORT=5000
-MONGO_URI=<MONGO_ATLAS_URI>
-JWT_SECRET=<SECRET>
-BASE_DOMAIN=<EC2_PUBLIC_IP>.nip.io
+Production runs on a single Azure VM.
+
+Components:
+
+- Next.js Frontend
+- Node.js Backend
+- K3s (Kubernetes)
+- Nginx (Reverse Proxy)
+- Ingress-Nginx
+- Helm
+
+---
+
+## Step 1: VM Preparation
+
+```bash
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl wget git nginx net-tools
 ```
 
-------------------------------------------------------------------------
+---
 
-### Step 5: Run Backend
+## Step 2: Install Node.js & PM2
 
-``` bash
-npm install -g pm2
-pm2 start server.js --name orchestrator
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+sudo npm install -g pm2
+```
+
+Start apps:
+
+```bash
+pm2 start npm --name "backend" -- start
+pm2 start npm --name "frontend" -- start
 pm2 save
 pm2 startup
 ```
 
-------------------------------------------------------------------------
+---
 
-### ✅ Verification
+## Step 3: Install K3s
 
-``` bash
+```bash
+curl -sfL https://get.k3s.io | sh -s - --disable traefik
+sudo chmod 644 /etc/rancher/k3s/k3s.yaml
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 kubectl get nodes
-kubectl get pods -A
-helm version
-node -v
-pm2 status
-curl http://localhost:5000/api/health
 ```
-
-------------------------------------------------------------------------
-
-
-## 🧠 Engineering Choices (Simple Explanation)
-
-### Why Helm?
-Helm makes it easy to package everything related to a store (service, ingress, database config) together.  
-It also allows passing dynamic values like domains and credentials cleanly at runtime.
-
-
-### Why `nip.io`?
-I didn't have a registered domain name. nip.io allowed us to turn our server's IP address into a working website link instantly, so we could build and test the platform without buying a domain.
 
 ---
 
-## 🔐 Security
+## Step 4: Install Ingress Controller
 
--   Namespace isolation
--   Resource quotas
--   JWT authentication
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/cloud/deploy.yaml
+kubectl get pods -n ingress-nginx
+```
+
+---
+
+## Step 5: Install Helm
+
+```bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm version
+```
+
+---
+
+## Step 6: Configure Nginx
+
+```bash
+sudo nano /etc/nginx/sites-available/[your-site-domain]
+sudo ln -s /etc/nginx/sites-available/[your-site-domain] /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+---
+
+## Step 7: Setup SSL
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo certbot --nginx -d instaconnector.in
+sudo certbot certonly --manual --preferred-challenges dns -d "*.instaconnector.in"
+```
+
+---
+
+
+
+## Azure Firewall Rules
+
+Allow:
+
+- 22 (SSH)
+- 80 (HTTP)
+- 443 (HTTPS)
+
+---
+
+
+
+# ⚙️ Automation Summary
+
+The platform automatically provisions isolated container-based e-commerce stores using Kubernetes and Helm, with dynamic domain routing via Nginx Ingress.
