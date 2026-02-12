@@ -3,25 +3,23 @@ replicaCount: 1
 image:
   repository: chetannn/medusa-backend
   tag: v2
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
+
+# Store ka unique naam (Node.js se pass hoga)
+slug: "default-store" 
+domain: "instaconnector.in"
 
 store:
-  port: 9000 # Medusa Port
   type: "medusa"
-  
+
 service:
   type: ClusterIP
-  port: 80
 
-ingress:
-  enabled: true
-  className: "nginx"
-  host: "medusa.localhost"
-
+# Resources/Persistence same rahega...
 resources:
   requests:
     cpu: 100m
-    memory: 128Mi
+    memory: 512Mi
 
 persistence:
   enabled: true
@@ -40,3 +38,7 @@ env:
 adminUser:
   email: "admin@default.com"
   password: "password123"
+
+secrets:
+  jwt: "supersecret"
+  cookie: "supersecret"

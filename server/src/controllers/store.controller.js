@@ -73,7 +73,7 @@ export const createStore = async (req, res) => {
       try {
         console.log(`[Background] Starting deployment for ${name} (${namespace})...`);
         await createK8sNamespace(namespace);
-        await deployStoreHelmChart(namespace, name, type, domain, adminEmail, adminPassword);
+        await deployStoreHelmChart(namespace, name, type, domain, adminEmail, adminPassword,slug);
         await Store.findByIdAndUpdate(store._id, {
           status: "READY",
           link: `${PROTOCOL}${domain}${type === "medusa" ? "/app" : ""}`

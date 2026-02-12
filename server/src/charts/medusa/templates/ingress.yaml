@@ -3,12 +3,13 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
   annotations:
-    # Nginx controller use karne ke liye
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    # 🚨 Rewrite annotation mat lagana, Medusa routes break ho jayenge
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 spec:
-  ingressClassName: {{ .Values.ingress.className }}
+  ingressClassName: "nginx"
   rules:
-    - host: {{ .Values.ingress.host }}
+    # RULE 1: Backend API (api-slug.domain)
+    - host: "api-{{ .Values.slug }}.{{ .Values.domain }}"
       http:
         paths:
           - path: /
@@ -17,4 +18,16 @@ spec:
               service:
                 name: {{ .Release.Name }}
                 port:
-                  number: {{ .Values.service.port }}
+                  number: 9000
+
+    # RULE 2: Admin Panel (admin-slug.domain)
+    - host: "admin-{{ .Values.slug }}.{{ .Values.domain }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}
+                port:
+                  number: 7001
