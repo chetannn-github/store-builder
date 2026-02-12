@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-front
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-front
+    spec:
+      containers:
+        - name: storefront
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+          
+          # 🚨 YAHAN MAGIC HOGA (Values inject hongi)
+          env:
+            # 1. Backend URL (Jo entrypoint.sh maang raha hai)
+            - name: MEDUSA_BACKEND_URL
+              value: {{ .Values.backendUrl | quote }}
+            
+            # 2. Publishable Key
+            - name: NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+              value: {{ .Values.publishableKey | quote }}
+            
+            # 3. Base URL (Store ka apna domain)
+            - name: NEXT_PUBLIC_BASE_URL
+              value: "https://{{ .Values.slug }}.{{ .Values.domain }}"
+            
+            # 4. Port (Next.js ke liye)
+            - name: PORT
+              value: "8000"
