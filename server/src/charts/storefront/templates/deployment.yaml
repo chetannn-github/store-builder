@@ -32,6 +32,8 @@ spec:
                   - >
                     echo "⏳ Waiting for WordPress Setup...";
                     sleep 30;
+                    wp option update siteurl "https://{{ .Values.ingress.host }}" --allow-root;
+                    wp option update home "https://{{ .Values.ingress.host }}" --allow-root;
                     wp plugin activate woocommerce --allow-root;
                     echo "✅ WooCommerce Activated!";
 
@@ -62,3 +64,9 @@ spec:
               value: "Admin"
             - name: WORDPRESS_BLOG_NAME
               value: "My WooCommerce Store"
+            - name: WORDPRESS_SCHEME
+              value: "https"
+            - name: WORDPRESS_SITE_URL
+              value: "https://{{ .Values.ingress.host }}"
+            - name: WORDPRESS_HOME
+              value: "https://{{ .Values.ingress.host }}"
