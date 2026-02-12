@@ -1,0 +1,15 @@
+replicaCount: 1
+
+image:
+  repository: chetannn/medusa-storefront
+  tag: v1
+  pullPolicy: Always
+
+# Ye sab Node.js se overwrite hoga
+slug: "default"
+domain: "instaconnector.in"
+backendUrl: ""      # e.g. https://api-nike.instaconnector.in
+publishableKey: ""  # e.g. pk_123...
+
+service:
+  port: 8000

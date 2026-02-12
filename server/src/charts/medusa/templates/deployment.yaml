@@ -45,9 +45,9 @@ spec:
             - name: ADMIN_CORS
               value: "http://admin-{{ .Values.slug }}.{{ .Values.domain }},https://admin-{{ .Values.slug }}.{{ .Values.domain }}"
             
-            # Storefront kahan se aayega (Optional abhi ke liye)
+            # Storefront
             - name: STORE_CORS
-              value: "http://{{ .Values.slug }}.{{ .Values.domain }},https://{{ .Values.slug }}.{{ .Values.domain }}"
+              value: "http://{{ .Values.slug }}.{{ .Values.domain }},https://{{ .Values.slug }}.{{ .Values.domain }},http://localhost:8000,https://test-shop.instaconnector.in"
             
             - name: ADMIN_EMAIL
               value: {{ .Values.adminUser.email | quote }}

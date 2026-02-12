@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-front
+spec:
+  ingressClassName: nginx
+  rules:
+    # URL: slug.instaconnector.in (e.g. nike.instaconnector.in)
+    - host: "{{ .Values.slug }}.{{ .Values.domain }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-front
+                port:
+                  number: 8000

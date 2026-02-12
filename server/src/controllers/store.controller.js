@@ -1,33 +1,35 @@
 import Store from '../models/store.model.js';
 import crypto from "crypto";
-import { createK8sNamespace, deleteStoreResources, deployStoreHelmChart } from '../services/k8sServices.js';
-import { getStoreDomain } from '../utils/helper.js';
-import { MAX_STORE_LIMIT } from '../utils/constant.js';
+import { createK8sNamespace, deleteStoreResources, deployStoreHelmChart, executeHelmCommand } from '../services/k8sServices.js';
+import { getStoreAdminUrl, getStoreDomain } from '../utils/helper.js';
+import { MAX_STORE_FREE_LIMIT, PROHIBITED_SLUG } from '../utils/constant.js';
 import { PROTOCOL } from '../config/env.js';
+import { getMedusaStoreCommand } from '../utils/commands.js';
+
 
 
 
 export const createStore = async (req, res) => {
   try {
-    const { name, type, slug, adminEmail, adminPassword } = req.body; 
+    const { name, storeType, slug, adminEmail, adminPassword } = req.body; 
     const userId = req.user.userId;
     const currentStoreCount = await Store.countDocuments({ owner: userId });
     
-    if (currentStoreCount >= MAX_STORE_LIMIT) {
+    if (currentStoreCount >= MAX_STORE_FREE_LIMIT) {
       return res.status(403).json({
         success: false,
-        message: `Quota Exceeded: You can only create up to ${MAX_STORE_LIMIT} stores.`
+        message: `Quota Exceeded: You can only create up to ${MAX_STORE_FREE_LIMIT} stores.`
       });
     }
 
-    if (!name || !type) {
+    if (!name || !storeType) {
       return res.status(400).json({
         success: false,
-        message: "Name and type are required",
+        message: "Name and storeType are required",
       });
     }
 
-    if (!["woocommerce", "medusa"].includes(type)) {
+    if (!["woocommerce", "medusa"].includes(storeType)) {
       return res.status(400).json({
         success: false,
         message: "Type must be either woocommerce or medusa",
@@ -46,7 +48,7 @@ export const createStore = async (req, res) => {
     const domain = getStoreDomain(namespace,slug);
     const existingStore = await Store.findOne({ domain });
     
-    if (existingStore) {
+    if (existingStore || PROHIBITED_SLUG.includes(slug)) {
       return res.status(400).json({ 
         success: false, 
         message: `Domain '${domain}' is already taken. Please choose another one.` 
@@ -55,7 +57,8 @@ export const createStore = async (req, res) => {
     
     const store = await Store.create({
       name,
-      type,
+      storeType,
+      slug,
       namespace,
       domain, 
       status: "PROVISIONING",
@@ -73,10 +76,11 @@ export const createStore = async (req, res) => {
       try {
         console.log(`[Background] Starting deployment for ${name} (${namespace})...`);
         await createK8sNamespace(namespace);
-        await deployStoreHelmChart(namespace, name, type, domain, adminEmail, adminPassword,slug);
+        await deployStoreHelmChart(namespace, name, storeType, domain, adminEmail, adminPassword,slug);
         await Store.findByIdAndUpdate(store._id, {
-          status: "READY",
-          link: `${PROTOCOL}${domain}${type === "medusa" ? "/app" : ""}`
+          status: storeType === "medusa" ? "BACKEND_READY" : "READY",
+          storeUrl: `${PROTOCOL}${domain}`,
+          adminUrl : getStoreAdminUrl(storeType, slug)
         });
 
         console.log(`[Background] Store ${name} is now READY! 🟢`);
@@ -114,6 +118,7 @@ export const createStore = async (req, res) => {
 
 export const deleteStore = async (req, res) => {
   try {
+    //! todo check if owner 
     const { storeId } = req.body;
     const store = await Store.findById(storeId);
 
@@ -170,4 +175,74 @@ export const getMyStores = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+
+
+export const deployStorefront = async (req, res) => {
+    try {
+        const { storeId, publishableKey } = req.body;
+        if (!storeId || !publishableKey) {
+            return res.status(400).json({
+                success: false,
+                error: "Validation Error",
+                message: "Missing required parameters: 'storeId' and 'publishableKey' are mandatory."
+            });
+        }
+
+        const store = await Store.findById(storeId);
+
+        if (!store) {
+            return res.status(404).json({
+                success: false,
+                error: "Resource Not Found",
+                message: "The requested store identifier does not exist in our records."
+            });
+        }
+
+        if (store.storeType !== 'medusa') {
+            return res.status(422).json({
+                success: false,
+                error: "Invalid Platform Configuration",
+                message: "Operation aborted: The targeted store is not initialized as a Medusa Commerce instance."
+            });
+        }
+
+        if (!store.namespace || !store.slug || store.status !== "BACKEND_READY") {
+            return res.status(409).json({
+                success: false,
+                error: "Pre-requisite Failed",
+                message: "Backend infrastructure (Phase 1) is missing. Please deploy the Admin/API layer first."
+            });
+        }
+
+        console.log(`[DEPLOYMENT STARTED] Deploying storefront for Store: ${store.slug} (ID: ${storeId})`);
+
+        const namespace = store.namespace;
+        const slug = store.slug;
+        const domain = store.domain;
+        const backendUrl = `${PROTOCOL}api-${domain}`; 
+
+        const command = getMedusaStoreCommand(namespace,slug,domain,backendUrl,publishableKey);
+        await executeHelmCommand(command);
+
+        store.deploymentStatus = "READY";
+        store.updatedAt = new Date();
+        await store.save();
+
+
+        return res.status(200).json({
+          success: true,
+          message: "Storefront service deployed successfully.",
+        });
+
+    } catch (error) {
+        console.error(`[DEPLOYMENT FAILED] Error: ${error.message}`);
+        return res.status(500).json({
+            success: false,
+            error: "Internal Infrastructure Error",
+            message: "An unexpected error occurred during the orchestration process. Our engineering team has been notified.",
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
 };

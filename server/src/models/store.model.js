@@ -6,13 +6,11 @@ const storeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-
-    type: {
+    storeType: {
       type: String,
       enum: ["woocommerce", "medusa"],
       required: true,
     },
-
     namespace: {
       type: String,
       required: true,
@@ -25,28 +23,33 @@ const storeSchema = new mongoose.Schema(
       unique: true,
       trim: true
     },
-    
-    status: {
-      type: String,
-      enum: ["PROVISIONING", "READY", "FAILED", "DELETING", "DELETION_FAILED"],
-      default: "PROVISIONING",
+    slug : {
+      type : String,
+      required : true,
     },
 
-    owner: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'User',
-      required: true 
-    },
-    link : {
-      type : String
-    }, 
+    status: {
+      type: String,
+      enum: ["PROVISIONING", "READY", "FAILED", "DELETING", "DELETION_FAILED", "BACKEND_READY"],
+      default: "PROVISIONING",
+    },   
+
+    storeUrl : { type : String }, 
+    adminUrl : { type : String },
+
     adminEmail : {
       type : String,
-      require: true
+      required: true
     }, 
     adminPassword : {
       type : String, 
       required : true,
+    },
+    
+    owner: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User',
+      required: true 
     }
   },
   {

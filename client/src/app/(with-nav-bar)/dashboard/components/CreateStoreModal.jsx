@@ -23,7 +23,7 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
   const [form, setForm] = useState({
     name: "",
     slug: "",
-    type: "woocommerce", // Default value
+    storeType : "woocommerce",
     adminEmail: "admin@example.com",
     adminPassword: "password123",
   });
@@ -102,8 +102,8 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
             <Label htmlFor="type">Store Type</Label>
             <select
               id="type"
-              value={form.type}
-              onChange={(e) => handleChange("type", e.target.value)}
+              value={form.storeType}
+              onChange={(e) => handleChange("storeType", e.target.value)}
               disabled={loading}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -114,7 +114,7 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
 
           <div className="space-y-4 border-l-2 pl-4  p-3 rounded-r-md animate-in fade-in slide-in-from-top-2">
             <div className="space-y-2">
-              <Label htmlFor="email">Admin Email (Medusa)</Label>
+              <Label htmlFor="email">Admin Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -125,7 +125,7 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Admin Password (Medusa)</Label>
+              <Label htmlFor="password">Admin Password</Label>
               <Input
                 id="password"
                 type="password"

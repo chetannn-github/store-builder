@@ -42,7 +42,11 @@ const statusConfig = {
   DELETING : {
    label : "Deleting...",
    className: "border-destructive/30 bg-destructive/10 text-destructive animate-pulse-fast animate-float"
-  }
+  },
+  BACKEND_READY: {
+    label: "Backend Ready",
+    className: "border-success/30 bg-success/10 text-success",
+  },
   
 };
 
@@ -110,14 +114,14 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting }) => {
                 </TableCell>
 
                 <TableCell>
-                  {store.link ? (
+                  {store.storeUrl ? (
                     <a
-                      href={store.link}
+                      href={store.storeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
                     >
-                      {store.link}
+                      {store.storeUrl}
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   ) : (
@@ -137,14 +141,14 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting }) => {
 
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
-                      {store.link && (
+                      {store.storeUrl && (
                         <>
                           <Button
                             variant="ghost"
                             size="icon"
                             className="text-accent-foreground hover:bg-accent hover:text-primary"
                             onClick={() =>
-                              router.replace(`/customize?name=${encodeURIComponent(store.name)}&url=${encodeURIComponent(store.link)}`)
+                              router.replace(`/customize?name=${encodeURIComponent(store.name)}&url=${encodeURIComponent(store.storeUrl)}`)
                             }
                             title="Customize store"
                           >
