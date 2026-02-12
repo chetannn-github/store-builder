@@ -104,7 +104,7 @@ export const getMedusaStoreCommand = (namespace, slug, domain, backendUrl, publi
     const command = `helm upgrade --install ${releaseName} ${chartPath} \
     --namespace ${namespace} \
     --set slug="${slug}" \
-    --set domain="${domain}" \
+    --set domain="${BASE_DOMAIN}" \
     --set backendUrl="${backendUrl}" \
     --set publishableKey="${publishableKey}" \
     --wait`;
