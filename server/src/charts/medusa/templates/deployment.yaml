@@ -64,8 +64,27 @@ spec:
               echo "👤 Creating Admin User..."
               npx medusa user -e $ADMIN_EMAIL -p $ADMIN_PASSWORD || true
               
-              echo "🚀 Starting Medusa (Backend + Admin)..."
-              # 'medusa develop' backend (9000) aur admin (7001) dono chalata hai dev mode mein
+              
+              echo "🔑 Injecting Hardcoded Testing Key..."
+              # Inline Node script: Ye seedha DATABASE_URL ka use karke key insert karegi
+              node -e "
+              const { Client } = require('pg');
+              const client = new Client({ connectionString: process.env.DATABASE_URL });
+              client.connect()
+                .then(() => {
+                  const query = \"INSERT INTO publishable_api_key (id, title, created_at, updated_at) VALUES ('pk_test_123456789', 'Testing Key', now(), now()) ON CONFLICT (id) DO NOTHING;\";
+                  return client.query(query);
+                })
+                .then(() => { 
+                  console.log('✅ Hardcoded Key Injected: pk_test_123456789'); 
+                  process.exit(0); 
+                })
+                .catch(err => { 
+                  console.error('❌ Injection Failed:', err); 
+                  process.exit(0); 
+                });
+              "
+              echo "🚀 Starting Medusa..."
               npx medusa develop
           
           # Health Check (Backend Port)
