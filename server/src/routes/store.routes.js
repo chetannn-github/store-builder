@@ -15,5 +15,8 @@ const createStoreLimiter = rateLimit({
 router.post('/', createStoreLimiter, authenticate, storeController.createStore);
 router.delete('/',authenticate, storeController.deleteStore);
 router.get("/", authenticate, storeController.getMyStores);
+router.post("/deploy-medusa-storefront", authenticate, storeController.deployStorefront);
+
+
 
 export default router;

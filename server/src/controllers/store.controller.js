@@ -118,6 +118,7 @@ export const createStore = async (req, res) => {
 
 export const deleteStore = async (req, res) => {
   try {
+    //! todo check if owner 
     const { storeId } = req.body;
     const store = await Store.findById(storeId);
 
@@ -178,7 +179,7 @@ export const getMyStores = async (req, res) => {
 
 
 
-const deployStorefront = async (req, res) => {
+export const deployStorefront = async (req, res) => {
     try {
         const { storeId, publishableKey } = req.body;
         if (!storeId || !publishableKey) {
