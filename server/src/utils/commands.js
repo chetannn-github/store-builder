@@ -26,7 +26,7 @@ export const getStoreDeletionCommand = (namespace) => {
 
 const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeType,domain, ingressClass ) => {
   const myCustomImage = "chetannn/custom-store-builder"; 
-  const imageTag = "ssll";
+  const imageTag = "v1";
 
   const devPostStartScript = `
     echo "Waiting for WordPress to initialize...";
