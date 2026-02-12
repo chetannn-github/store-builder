@@ -1,4 +1,4 @@
-const { Client } = require('pg');
+import {Client} from 'pg'
 
 // HARDCODED CONFIG FOR store-f8627f
 const dbConfig = {
