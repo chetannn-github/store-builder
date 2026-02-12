@@ -230,7 +230,6 @@ export const deployStorefront = async (req, res) => {
         store.updatedAt = new Date();
         await store.save();
 
-        console.log(`[DEPLOYMENT SUCCESS] Storefront is live at: ${frontendUrl}`);
 
         return res.status(200).json({
           success: true,
