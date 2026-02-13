@@ -19,9 +19,14 @@ export const getStoreCreationCommand = (namespace, storeType, domain, adminEmail
 }
 
 
-export const getStoreDeletionCommand = (namespace) => {
+export const getStoreNamespaceDeletionCommand = (namespace) => {
     const deletionCommand = `kubectl delete namespace ${namespace} --wait=false`; 
     return deletionCommand;
+}
+
+export const getStoreNamespaceCreationCommand = (namespace) => {
+    const creationCommand = `kubectl create namespace ${namespace} && kubectl label namespace ${namespace} managedBy=urumi-platform`; 
+    return creationCommand;
 }
 
 
