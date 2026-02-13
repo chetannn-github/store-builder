@@ -1,6 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import { BASE_DOMAIN, NODE_ENV } from "../config/env.js";
+import { BASE_DOMAIN, NODE_ENV, PROTOCOL, SCHEME } from "../config/env.js";
 import { INGRESS_CLASS, MEDUSA_STORE_ADMIN_FOLDER, MEDUSA_STORE_FOLDER, WOOCOMMERCE_FOLDER, WOOCOMMERCE_IMAGE, WOOCOMMERCE_IMAGE_TAG } from "../config/helm.config.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -64,6 +64,8 @@ const getWoocommerceStoreCommand = (adminEmail, adminPass, namespace, chartPath,
       --set ingress.enabled=true \
       --set ingress.host=${domain} \
       --set ingress.className=${INGRESS_CLASS} \
+      --set ingress.protocol=${PROTOCOL} \
+      --set ingress.scheme=${SCHEME} \
       \
       --set livenessProbe.initialDelaySeconds=60 \
       --set readinessProbe.initialDelaySeconds=60 \
