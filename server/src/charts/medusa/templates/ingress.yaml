@@ -3,7 +3,6 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
   annotations:
-    # 🚨 Rewrite annotation mat lagana, Medusa routes break ho jayenge
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 spec:
   ingressClassName: "nginx"

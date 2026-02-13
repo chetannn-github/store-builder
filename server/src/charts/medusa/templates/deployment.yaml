@@ -40,14 +40,12 @@ spec:
             - name: COOKIE_SECRET
               value: {{ .Values.secrets.cookie | default "supersecret" | quote }}
             
-            # 🚨 DYNAMIC CORS SETTINGS (Bahut Important)
-            # Backend ko bata rahe hain ki Admin kahan se request karega
             - name: ADMIN_CORS
               value: "http://admin-{{ .Values.slug }}.{{ .Values.domain }},https://admin-{{ .Values.slug }}.{{ .Values.domain }}"
             
             # Storefront
             - name: STORE_CORS
-              value: "http://{{ .Values.slug }}.{{ .Values.domain }},https://{{ .Values.slug }}.{{ .Values.domain }},http://localhost:8000,https://test-shop.instaconnector.in"
+              value: "http://{{ .Values.slug }}.{{ .Values.domain }},https://{{ .Values.slug }}.{{ .Values.domain }}"
             
             - name: ADMIN_EMAIL
               value: {{ .Values.adminUser.email | quote }}
@@ -58,13 +56,13 @@ spec:
           args:
             - "-c"
             - |
-              echo "⏳ Running Migrations..."
+              echo "Running Migrations..."
               npx medusa db:migrate
               
-              echo "👤 Creating Admin User..."
+              echo "Creating Admin User..."
               npx medusa user -e $ADMIN_EMAIL -p $ADMIN_PASSWORD || true
               
-              echo "🚀 Starting Medusa (Backend + Admin)..."
+              echo "Starting Medusa (Backend + Admin)..."
               # 'medusa develop' backend (9000) aur admin (7001) dono chalata hai dev mode mein
               npx medusa develop
           
