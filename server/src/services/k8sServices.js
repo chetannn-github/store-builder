@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 import util from 'util';
-import { getMedusaStoreCommand, getStoreCreationCommand, getStoreNamespaceCreationCommand, getStoreNamespaceDeletionCommand } from '../utils/commands.js';
+import { getCustomDomainCommand, getMedusaStoreCommand, getStoreCreationCommand, getStoreNamespaceCreationCommand, getStoreNamespaceDeletionCommand } from '../utils/commands.js';
 
 const execPromise = util.promisify(exec);
 
@@ -39,4 +39,12 @@ export const deployMedusaStoreFront = async(namespace,slug,domain,backendUrl, pu
   const command = getMedusaStoreCommand(namespace,slug,domain,backendUrl, publishableKey);
   await executeHelmCommand(command);
   console.log(`[Background] Storefront ${slug} is now READY!`);
+}
+
+
+
+export const updateCustomDomain = async(store) => {
+    const command = getCustomDomainCommand(store);
+    await executeHelmCommand(command);
+    console.log(`Domain ${store.customDomain} is now ACTIVE`);
 }

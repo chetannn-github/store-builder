@@ -17,6 +17,9 @@ ingress:
   enabled: true
   className: "nginx"
   host: "store.localhost" 
+  customDomain: ""  
+  protocol: "http://"
+  scheme: "http"
 
 
 wordpressUsername: "admin"

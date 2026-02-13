@@ -6,6 +6,8 @@ import "dotenv/config";
 
 import storeRoutes from './routes/store.routes.js'; 
 import authRoutes from './routes/auth.routes.js';
+import customDomainRoutes from './routes/domain.route.js';
+
 import { NODE_ENV } from "./config/env.js";
 
 
@@ -45,6 +47,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/stores', storeRoutes); 
 app.use('/api/auth/', authRoutes);
+app.use('/api/domain',customDomainRoutes);
+
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

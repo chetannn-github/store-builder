@@ -17,6 +17,20 @@ export const getStoreCreationCommand = (namespace, storeType, domain, adminEmail
    
 }
 
+export const getCustomDomainCommand = (store) => { 
+    const chartFolder = (store.storeType === "medusa") ? MEDUSA_STORE_ADMIN_FOLDER : WOOCOMMERCE_FOLDER; 
+    const chartPath = path.resolve(__dirname, `../charts/${chartFolder}`);
+
+    const helmCommand = `helm upgrade ${store.namespace} ${chartPath} \
+    --namespace ${store.namespace} \
+    --reuse-values \
+    --set ingress.customDomain="${store.customDomain}" \
+    --set ingress.tls.enabled=true \
+    --wait`;
+
+    return helmCommand;
+}
+
 
 export const getStoreNamespaceDeletionCommand = (namespace) => {
     const deletionCommand = `kubectl delete namespace ${namespace} --wait=false`; 

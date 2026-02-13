@@ -3,12 +3,16 @@ kind: Ingress
 metadata:
   name: {{ .Release.Name }}
   annotations:
-    # Nginx controller use karne ke liye
     nginx.ingress.kubernetes.io/rewrite-target: /
+    # SSL toggle (if needed later)
+    {{- if .Values.ingress.customDomain }}
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
-    - host: {{ .Values.ingress.host }}
+    # Rule 1: Default Store URL (slug.instaconnector.in)
+    - host: {{ .Values.ingress.host | quote }}
       http:
         paths:
           - path: /
@@ -18,3 +22,17 @@ spec:
                 name: {{ .Release.Name }}
                 port:
                   number: {{ .Values.service.port }}
+    
+    # Rule 2: Custom Domain (Only if provided)
+    {{- if .Values.ingress.customDomain }}
+    - host: {{ .Values.ingress.customDomain | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}
+                port:
+                  number: {{ .Values.service.port }}
+    {{- end }}

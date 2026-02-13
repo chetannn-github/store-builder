@@ -32,10 +32,17 @@ spec:
                   - >
                     echo "Waiting for WordPress Setup...";
                     sleep 30;
-                    wp option update siteurl "{{ .Values.ingress.protocol }}{{ .Values.ingress.host }}" --allow-root;
-                    wp option update home "{{ .Values.ingress.protocol }}{{ .Values.ingress.host }}" --allow-root;
+                    # Logic to pick the right URL
+                    {{- if .Values.ingress.customDomain }}
+                    CURRENT_URL="{{ .Values.ingress.protocol }}{{ .Values.ingress.customDomain }}";
+                    {{- else }}
+                    CURRENT_URL="{{ .Values.ingress.protocol }}{{ .Values.ingress.host }}";
+                    {{- end }}
+                    
+                    wp option update siteurl "$CURRENT_URL" --allow-root;
+                    wp option update home "$CURRENT_URL" --allow-root;
                     wp plugin activate woocommerce --allow-root;
-                    echo "WooCommerce Activated!";
+                    echo "WooCommerce Activated on $CURRENT_URL!";
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -51,22 +58,12 @@ spec:
               value: "bitnami_wordpress"
             - name: ALLOW_EMPTY_PASSWORD
               value: "yes"
-
             - name: WORDPRESS_USERNAME
               value: {{ default "user" .Values.wordpressUsername | quote }}
             - name: WORDPRESS_PASSWORD
               value: {{ default "bitnami" .Values.wordpressPassword | quote }}
             - name: WORDPRESS_EMAIL
               value: {{ default "user@example.com" .Values.wordpressEmail | quote }}
-            - name: WORDPRESS_FIRST_NAME
-              value: "Store"
-            - name: WORDPRESS_LAST_NAME
-              value: "Admin"
-            - name: WORDPRESS_BLOG_NAME
-              value: "My WooCommerce Store"
-            - name: WORDPRESS_SCHEME
-              value: "{{ .Values.ingress.scheme }}"
             - name: WORDPRESS_SITE_URL
-              value: "{{ .Values.ingress.protocol }}{{ .Values.ingress.host }}"
-            - name: WORDPRESS_HOME
-              value: "{{ .Values.ingress.protocol }}{{ .Values.ingress.host }}"
+              # Environment variable update
+              value: "{{ .Values.ingress.protocol }}{{ .Values.ingress.customDomain | default .Values.ingress.host }}"
