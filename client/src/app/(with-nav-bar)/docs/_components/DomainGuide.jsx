@@ -44,8 +44,8 @@ const DomainGuide = () => {
 
         <CodeBlock
           code={`Type: TXT
-Name: @
-Value: urumi-verify-8x2abc123`}
+Name: _acme-challenge.domain
+Value: e160da2d433,.validation.instaconnector.in`}
           language="DNS Record"
         />
       </div>
