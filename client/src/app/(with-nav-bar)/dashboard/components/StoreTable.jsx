@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash2, ExternalLink, Loader2, Link, Paintbrush, Settings, KeyRound, ChevronRight } from "lucide-react";
+import { Trash2, ExternalLink, Loader2, Link, Paintbrush, Settings, KeyRound, ChevronRight, Globe } from "lucide-react";
 import { Button } from "../../../_components/ui/button";
 import { Badge } from "../../../_components/ui/badge";
 import {
@@ -144,20 +144,51 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
                   </TableCell>
 
                   <TableCell>
-                    {store.storeUrl  && store.status === "READY" ? (
-                      <a
-                        href={store.storeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                      >
-                        {store.storeUrl}
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
+                    {(store.status === "READY") ? (
+                      <div className="flex flex-col gap-1 text-sm">
+
+                        {/* Default Store URL */}
+                        {store.status === "READY" && store.storeUrl && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground w-28">
+                              Store URL:
+                            </span>
+
+                            <a
+                              href={store.storeUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-primary hover:underline truncate max-w-[240px]"
+                              title={store.storeUrl}
+                            >
+                              {store.storeUrl}
+                              <ExternalLink className="h-3 w-3 shrink-0" />
+                            </a>
+                          </div>
+                        )}
+
+                        {store.domainStatus === "ACTIVE" && store.customDomain && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground w-28">
+                              Custom Domain:
+                            </span>
+
+                            <a
+                              href={`https://${store.customDomain}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-primary hover:underline truncate max-w-[240px]"
+                              title={store.customDomain}
+                            >
+                              {store.customDomain}
+                              <ExternalLink className="h-3 w-3 shrink-0" />
+                            </a>
+                          </div>
+                        )}
+
+                      </div>
                     ) : (
-                      <span className="text-sm text-muted-foreground">
-                        —
-                      </span>
+                      <span className="text-sm text-muted-foreground">—</span>
                     )}
                   </TableCell>
 
@@ -176,16 +207,25 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
 
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      {store.status === "READY" && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-primary hover:bg-primary/10 hover:text-primary"
-                            onClick={() => setDomainStore(store)}
-                            title="Connect Domain"
-                          >
-                            <Link className="h-4 w-4" />
-                          </Button>
+                      {store.status === "READY" && store.storeType === "woocommerce" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={cn(
+                            "transition-all",
+                            store.domainStatus === "ACTIVE" 
+                              ? "text-green-500 " 
+                              : "text-primary hover:bg-primary/10"
+                          )}
+                          onClick={() => setDomainStore(store)}
+                          title={store.domainStatus === "ACTIVE" ? "Domain Connected" : "Connect Domain"}
+                        >
+                          {store.domainStatus === "ACTIVE" ? (
+                            <Globe className="h-4 w-4" /> // Connected hai toh Globe dikhao
+                          ) : (
+                            <Link className="h-4 w-4" /> // Nahi hai toh Link icon
+                          )}
+                        </Button>
                       )}
 
                       {store.storeUrl && store.status === "READY" && (
