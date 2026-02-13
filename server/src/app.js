@@ -4,11 +4,10 @@ import cors from 'cors';
 import morgan from 'morgan';
 import "dotenv/config";
 
-import './config/kubernetes.js';
 import storeRoutes from './routes/store.routes.js'; 
 import authRoutes from './routes/auth.routes.js';
 import { NODE_ENV } from "./config/env.js";
-import { trusted } from "mongoose";
+
 
 const app = express();
 app.use(express.json());
