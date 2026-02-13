@@ -2,8 +2,7 @@ import crypto from 'crypto';
 import dns from 'dns/promises';
 import Store from '../models/store.model.js';
 import mongoose from 'mongoose';
-import { executeHelmCommand, updateCustomDomain } from '../services/k8sServices.js';
-import { getCustomDomainCommand } from '../utils/commands.js';
+import { updateCustomDomain } from '../services/k8sServices.js';
 
 export const initiateDomainConnect = async (req, res) => {
     const { storeId, customDomain } = req.body;
@@ -36,11 +35,18 @@ export const initiateDomainConnect = async (req, res) => {
 
     res.status(200).json({
         success: true,
-        recordToadd: {
-            type: "TXT",
-            name: `_acme-challenge.${customDomain}`,
-            value: `${token}.validation.instaconnector.in`
-        }
+        dnsRecords: [
+            {
+                type: "TXT",
+                name: `_acme-challenge.${customDomain}`,
+                value: `${token}.validation.instaconnector.in`
+            },
+            {
+                type: "CNAME",
+                name: `${customDomain.split('.')[0]}`,
+                value: `${store.domain}`
+            }
+    ]
     });
 };
 
@@ -84,7 +90,10 @@ export const verifyDomainDNS = async (req, res) => {
 export const activateDomain = async (req, res) => {
     try {
         const { storeId } = req.body;
-        const store = await Store.findById(storeId);
+        const store = await Store.findOne({
+            _id: storeId,
+            owner: req.user.userId,
+        });
 
         if (!store || store.domainStatus !== 'VALIDATED') {
             return res.status(400).json({ 
