@@ -144,7 +144,7 @@ export const deleteStore = async (req, res) => {
     (async () => {
       try {
         console.log(`[Background] Deleting resources for namespace: ${store.namespace}...`);
-        const command = getStoreDeletionCommand(namespace);
+        const command = getStoreDeletionCommand(store.namespace);
         await executeHelmCommand(command);
         await Store.findByIdAndDelete(storeId);
         console.log(`[Background] Store ${store.name} deleted successfully from DB & K8s ✅`);

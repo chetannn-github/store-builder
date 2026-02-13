@@ -62,6 +62,10 @@ const statusConfig = {
    label : "Deleting...",
    className: "border-destructive/30 bg-destructive/10 text-destructive animate-pulse-fast animate-float"
   },
+  DELETION_FAILED: {
+    label: "Deletion Failed",
+    className: "border-destructive/30 bg-destructive/10 text-destructive",
+  },
   DEPLOYING_FRONTEND: {
     label: "Deploying...",
     className: "border-warning/30 bg-warning/10 text-warning animate-pulse-fast animate-float ",
