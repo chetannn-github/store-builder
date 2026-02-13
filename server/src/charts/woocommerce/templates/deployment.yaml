@@ -66,4 +66,4 @@ spec:
               value: {{ default "user@example.com" .Values.wordpressEmail | quote }}
             - name: WORDPRESS_SITE_URL
               # Environment variable update
-              value: "{{ .Values.ingress.protocol }}{{ border .Values.ingress.customDomain | default .Values.ingress.host }}"
+              value: "{{ .Values.ingress.protocol }}{{ .Values.ingress.customDomain | default .Values.ingress.host }}"
