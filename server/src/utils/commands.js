@@ -1,7 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import { BASE_DOMAIN, NODE_ENV } from "../config/env.js";
-import { MEDUSA_STORE_ADMIN_FOLDER, MEDUSA_STORE_FOLDER, WOOCOMMERCE_FOLDER } from "./constant.js";
+import { INGRESS_CLASS, MEDUSA_STORE_ADMIN_FOLDER, MEDUSA_STORE_FOLDER, WOOCOMMERCE_FOLDER, WOOCOMMERCE_IMAGE, WOOCOMMERCE_IMAGE_TAG } from "../config/helm.config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,11 +10,10 @@ const __dirname = path.dirname(__filename);
 export const getStoreCreationCommand = (namespace, storeType, domain, adminEmail, adminPass,slug) => {
     const chartFolder = (storeType === "medusa") ? MEDUSA_STORE_ADMIN_FOLDER : WOOCOMMERCE_FOLDER; 
     const chartPath = path.resolve(__dirname, `../charts/${chartFolder}`);
-    const ingressClass = "nginx";
 
     return storeType === "medusa" ?  
     getMedusaAdminStoreCommand(adminEmail, adminPass, namespace, chartPath,slug ) :
-    getWoocommerceStoreCommand(adminEmail,adminPass,namespace,chartPath,storeType,domain,ingressClass) ;
+    getWoocommerceStoreCommand(adminEmail,adminPass,namespace,chartPath,storeType,domain) ;
    
 }
 
@@ -30,11 +29,8 @@ export const getStoreNamespaceCreationCommand = (namespace) => {
 }
 
 
-const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeType,domain, ingressClass ) => {
-  const myCustomImage = "chetannn/custom-store-builder"; 
-  const imageTag = "v1";
-
-  const devPostStartScript = `
+const getWoocommerceStoreCommand = (adminEmail, adminPass, namespace, chartPath,storeType,domain) => {
+   const devPostStartScript = `
     echo "Waiting for WordPress to initialize...";
     sleep 30;
     wp plugin activate woocommerce;
@@ -49,8 +45,8 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
       --create-namespace \
       \
       --set image.registry=docker.io \
-      --set image.repository="${myCustomImage}" \
-      --set image.tag="${imageTag}" \
+      --set image.repository="${WOOCOMMERCE_IMAGE}" \
+      --set image.tag="${WOOCOMMERCE_IMAGE_TAG}" \
       --set image.pullPolicy=Always \
       \
       --set service.type=ClusterIP \
@@ -60,14 +56,14 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
       --set store.port=8080 \
       \
       --set wordpressUsername="admin" \
-      --set wordpressPassword="${password}" \
-      --set wordpressEmail="${email}" \
+      --set wordpressPassword="${adminPass}" \
+      --set wordpressEmail="${adminEmail}" \
       --set wordpressFirstName="Store" \
       --set wordpressLastName="Owner" \
       \
       --set ingress.enabled=true \
       --set ingress.host=${domain} \
-      --set ingress.className=${ingressClass} \
+      --set ingress.className=${INGRESS_CLASS} \
       \
       --set livenessProbe.initialDelaySeconds=60 \
       --set readinessProbe.initialDelaySeconds=60 \
@@ -83,18 +79,16 @@ const getWoocommerceStoreCommand = (email, password, namespace, chartPath,storeT
 }
 
 const getMedusaAdminStoreCommand = (adminEmail, adminPass, namespace, chartPath,slug ) => {
-    
-
-      const medusaStoreCommand = `helm install ${namespace} ${chartPath} \
-      --namespace ${namespace} \
-      --create-namespace \
-      --set slug=${slug} \
-      --set domain=${BASE_DOMAIN} \
-      --set ingress.className="nginx" \
-      --set adminUser.email="${adminEmail}" \
-      --set adminUser.password="${adminPass}" \
-      --values ${chartPath}/values-local.yaml \
-      --wait`;
+    const medusaStoreCommand = `helm install ${namespace} ${chartPath} \
+    --namespace ${namespace} \
+    --create-namespace \
+    --set slug=${slug} \
+    --set domain=${BASE_DOMAIN} \
+    --set ingress.className="nginx" \
+    --set adminUser.email="${adminEmail}" \
+    --set adminUser.password="${adminPass}" \
+    --values ${chartPath}/values-local.yaml \
+    --wait`;
 
     return medusaStoreCommand;
 }
