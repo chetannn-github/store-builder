@@ -1,7 +1,6 @@
 "use client";
 
-
-import { Trash2, ExternalLink, Loader2, Globe, Paintbrush, Settings, KeyRound, ChevronRight } from "lucide-react";
+import { Trash2, ExternalLink, Loader2, Link, Paintbrush, Settings, KeyRound, ChevronRight } from "lucide-react";
 import { Button } from "../../../_components/ui/button";
 import { Badge } from "../../../_components/ui/badge";
 import {
@@ -39,6 +38,7 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import toast from "react-hot-toast";
 import { SetupInstructions } from "./SetupInstructions";
+import ConnectDomainDialog from "./CustomDomainDialog";
 
 
 const statusConfig = {
@@ -85,6 +85,7 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
   const [keyDialogStore, setKeyDialogStore] = useState(null);
   const [publishableKey, setPublishableKey] = useState("");
   const [isUpdatingKey, setIsUpdatingKey] = useState(false);
+   const [domainStore, setDomainStore] = useState(null);
   
   if (!stores || stores.length === 0) {
     return (
@@ -175,6 +176,18 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
 
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {store.status === "READY" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-primary hover:bg-primary/10 hover:text-primary"
+                            onClick={() => setDomainStore(store)}
+                            title="Connect Domain"
+                          >
+                            <Link className="h-4 w-4" />
+                          </Button>
+                      )}
+
                       {store.storeUrl && store.status === "READY" && (
                         <Button
                           variant="ghost"
@@ -390,6 +403,16 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
         </Dialog>
 
       </div>
+
+      {domainStore && (
+        <ConnectDomainDialog
+          open={!!domainStore}
+          onOpenChange={(open) => { if (!open) setDomainStore(null); }}
+          storeName={domainStore.name}
+          storeUrl={domainStore.storeUrl}
+          storeId={domainStore._id}
+        />
+      )}
     </div>
   );
 };
