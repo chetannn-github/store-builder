@@ -279,8 +279,41 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
                 Update Publishable Key
               </DialogTitle>
               <DialogDescription>
-                Enter publishable key for{" "}
-                <strong>{keyDialogStore?.name}</strong>
+                <div>
+                  Enter publishable key for{" "}
+                  <strong>{keyDialogStore?.name}</strong>
+                </div>
+                  {keyDialogStore?.adminUrl && (
+                    <div className="rounded-md border bg-muted/40 p-3 space-y-2 mt-3">
+                      <p className="font-medium text-foreground">
+                        How to get your Publishable Key:
+                      </p>
+
+                      <ol className="list-decimal list-inside space-y-1 text-muted-foreground text-xs">
+                        <li>
+                          Open your Admin Panel:
+                          <div>
+                            <a
+                              href={keyDialogStore.adminUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-primary hover:underline break-all"
+                            >
+                              {keyDialogStore.adminUrl}
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </div>
+                        </li>
+                        <li>
+                          Navigate to:
+                          <code className="ml-1 rounded bg-secondary px-1.5 py-0.5 font-mono text-xs">
+                            Settings → Developer → Publishable Key
+                          </code>
+                        </li>
+                        <li>Copy the key and paste it below.</li>
+                      </ol>
+                    </div>
+                  )}
               </DialogDescription>
             </DialogHeader>
 
