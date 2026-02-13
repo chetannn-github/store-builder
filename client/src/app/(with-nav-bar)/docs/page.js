@@ -1,15 +1,17 @@
 "use client"
 import { useState } from "react";
-import { BookOpen, Server, Layers } from "lucide-react";
+import { BookOpen, Server, Layers, Globe } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import LocalSetup from "./_components/LocalSetup";
 import ProductionDeploy from "./_components/ProductionDeploy";
 import Architecture from "./_components/Architecture";
+import DomainGuide from "./_components/DomainGuide";
 
 const sections = [
   { id: "architecture", label: "Architecture", icon: Layers },
   { id: "local", label: "Local Setup", icon: BookOpen },
   { id: "production", label: "Production (EC2)", icon: Server },
+  {id : "domainGuide", label : "Custom Domain Guide" , icon : Globe}
   
 ];
 
@@ -24,6 +26,8 @@ const Documentation = () => {
         return <ProductionDeploy />;
       case "architecture":
         return <Architecture />;
+      case "domainGuide" :
+        return <DomainGuide/>
       default:
         return null;
     }
