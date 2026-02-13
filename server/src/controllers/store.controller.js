@@ -216,33 +216,53 @@ export const deployStorefront = async (req, res) => {
             });
         }
 
-        console.log(`[DEPLOYMENT STARTED] Deploying storefront for Store: ${store.slug} (ID: ${storeId})`);
-
-        const namespace = store.namespace;
-        const slug = store.slug;
-        const domain = store.domain;
-        const backendUrl = `${PROTOCOL}api-${domain}`; 
-
-        const command = getMedusaStoreCommand(namespace,slug,domain,backendUrl,publishableKey);
-        await executeHelmCommand(command);
-
-        store.status = "READY";
-        store.updatedAt = new Date();
+        store.status = "DEPLOYING_FRONTEND";
         await store.save();
 
-
-        return res.status(200).json({
-          success: true,
-          message: "Storefront service deployed successfully.",
+        res.status(202).json({
+            success: true,
+            message: "Storefront deployment initiated in background.",
+            storeId: storeId
         });
+
+        (async () => {
+            try {
+                console.log(`[Background] Starting Storefront for: ${store.slug}...`);
+                
+                const namespace = store.namespace;
+                const slug = store.slug;
+                const domain = store.domain;
+                const backendUrl = `${PROTOCOL}api-${domain}`; 
+
+                const command = getMedusaStoreCommand(namespace,slug,domain,backendUrl, publishableKey);
+                
+                await executeHelmCommand(command);
+
+                await Store.findByIdAndUpdate(storeId, { 
+                    status: "READY", 
+                    updatedAt: new Date() 
+                });
+                
+                console.log(`[Background] Storefront ${slug} is now READY! ✅`);
+
+            } catch (err) {
+                console.error(`[Background] Deployment Failed for ${store.slug}:`, err);
+                
+                await Store.findByIdAndUpdate(storeId, {
+                    status: "FAILED",
+                    failureReason: err.message
+                });
+            }
+        })();
 
     } catch (error) {
-        console.error(`[DEPLOYMENT FAILED] Error: ${error.message}`);
-        return res.status(500).json({
-            success: false,
-            error: "Internal Infrastructure Error",
-            message: "An unexpected error occurred during the orchestration process. Our engineering team has been notified.",
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
+        console.error("API Error:", error);
+        if (!res.headersSent) {
+            return res.status(500).json({
+                success: false,
+                message: "Failed to start deployment",
+                error: error.message
+            });
+        }
     }
 };

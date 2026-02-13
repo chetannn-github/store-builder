@@ -49,7 +49,7 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    const isProvisioning = stores.some((store) => (store.status === "PROVISIONING" || store.status === "DELETING"));
+    const isProvisioning = stores.some((store) => (store.status === "PROVISIONING" || store.status === "DELETING" || store.status=== "DEPLOYING_FRONTEND"));
     let intervalId;
 
     if (isProvisioning) {
@@ -107,7 +107,7 @@ const Dashboard = () => {
         </Button>
       </div>
 
-      <StoreTable stores={stores} onDelete={handleDelete}  isLoading={isGettingStores} isDeleting={isDeleting}/>
+      <StoreTable stores={stores} onDelete={handleDelete}  isLoading={isGettingStores} isDeleting={isDeleting} fetchStores={fetchStores}/>
 
       <CreateStoreModal
         open={modalOpen}

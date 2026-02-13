@@ -30,7 +30,7 @@ const storeSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["PROVISIONING", "READY", "FAILED", "DELETING", "DELETION_FAILED", "BACKEND_READY"],
+      enum: ["PROVISIONING", "READY", "FAILED", "DELETING", "DELETION_FAILED", "BACKEND_READY","DEPLOYING_FRONTEND"],
       default: "PROVISIONING",
     },   
 

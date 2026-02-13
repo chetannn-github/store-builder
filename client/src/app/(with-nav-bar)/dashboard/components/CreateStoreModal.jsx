@@ -112,23 +112,25 @@ const CreateStoreModal = ({ open, onOpenChange, onCreated }) => {
             </select>
           </div>
 
-          <div className="space-y-4 border-l-2 pl-4  p-3 rounded-r-md animate-in fade-in slide-in-from-top-2">
-            <div className="space-y-2">
-              <Label htmlFor="email">Admin Email</Label>
+          <div className="space-y-2  rounded-r-md animate-in fade-in slide-in-from-top-2">
+            <div className="">
+              <Label htmlFor="email" >Admin Email</Label>
               <Input
                 id="email"
                 type="email"
+                className="mt-2"
                 value={form.adminEmail}
                 onChange={(e) => handleChange("adminEmail", e.target.value)}
                 disabled={loading}
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="">
               <Label htmlFor="password">Admin Password</Label>
               <Input
                 id="password"
                 type="password"
+                className="mt-2"
                 value={form.adminPassword}
                 onChange={(e) => handleChange("adminPassword", e.target.value)}
                 disabled={loading}
