@@ -78,6 +78,10 @@ const statusConfig = {
 
 const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => {
   const router = useRouter();
+  const [keyDialogStore, setKeyDialogStore] = useState(null);
+  const [publishableKey, setPublishableKey] = useState("");
+  const [isUpdatingKey, setIsUpdatingKey] = useState(false);
+  
   if (!stores || stores.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
@@ -185,6 +189,19 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
                         </Button>
                       )}
 
+                      {store.status === "READY" && store.storeType === 'medusa' && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setKeyDialogStore(store);
+                            setPublishableKey("");
+                          }}
+                        >
+                          <KeyRound className="h-4 w-4" />
+                        </Button>
+                      )}
+
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
@@ -243,6 +260,99 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
           })}
         </TableBody>
       </Table>
+
+
+      <div>
+        <Dialog
+          open={!!keyDialogStore}
+          onOpenChange={(open) => {
+            if (!open) {
+              setKeyDialogStore(null);
+              setPublishableKey("");
+            }
+          }}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-primary" />
+                Update Publishable Key
+              </DialogTitle>
+              <DialogDescription>
+                Enter publishable key for{" "}
+                <strong>{keyDialogStore?.name}</strong>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2 py-2">
+              <Label htmlFor="publishable-key">
+                Publishable Key
+              </Label>
+              <Input
+                id="publishable-key"
+                placeholder="pk_live_xxxxxxxxxxxxxxxxx"
+                value={publishableKey}
+                onChange={(e) =>
+                  setPublishableKey(e.target.value)
+                }
+                className="font-mono text-xs"
+              />
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setKeyDialogStore(null);
+                  setPublishableKey("");
+                }}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                disabled={isUpdatingKey}
+                onClick={async () => {
+                  if (!publishableKey.trim()) {
+                    return;
+                  }
+
+                  try {
+                    setIsUpdatingKey(true);
+                    const payload = {
+                      storeId: keyDialogStore._id,
+                      publishableKey 
+                    }
+                    const token = localStorage.getItem('jwt');  
+                    const res = await api.post("/stores/deploy-medusa-storefront",payload, token);
+          
+                    if (!res.success) {
+                      throw new Error(res?.message || "Setup failed");
+                    }
+                    await fetchStores();
+
+                    toast.success("Publishable key updated");
+                    setKeyDialogStore(null);
+                    setPublishableKey("");
+                  } catch (err) {
+                    console.log(err)
+                    toast.error("Failed to update key");
+                  } finally {
+                    setIsUpdatingKey(false);
+                  }
+                }}
+              >
+                {isUpdatingKey ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Update Key"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+      </div>
     </div>
   );
 };
