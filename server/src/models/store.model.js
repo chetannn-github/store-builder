@@ -50,6 +50,13 @@ const storeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId, 
       ref: 'User',
       required: true 
+    },
+    customDomain: { type: String, default: null },
+    domainValidationToken: { type: String },
+    domainStatus: { 
+      type: String, 
+      enum: ['NONE', 'PENDING_VALIDATION', 'VALIDATED', 'ACTIVE'], 
+      default: 'NONE' 
     }
   },
   {
