@@ -1,70 +1,8 @@
 import { exec } from 'child_process';
 import util from 'util';
-import { coreApi } from '../config/kubernetes.js';
-import { getStoreCreationCommand, getStoreDeletionCommand } from '../utils/commands.js';
+import { getMedusaStoreCommand, getStoreCreationCommand, getStoreNamespaceCreationCommand, getStoreNamespaceDeletionCommand } from '../utils/commands.js';
 
 const execPromise = util.promisify(exec);
-
-export const createK8sNamespace = async (namespaceName) => {
-  try {
-    console.log(`Creating namespace: ${namespaceName}`);
-    
-    await coreApi.createNamespace({ body : {
-        metadata: {
-        name: namespaceName,
-        labels: { managedBy: "urumi-platform" }
-      }
-    }});
-    
-    return true;
-  } catch (error) {
-    if (error.response && error.response.statusCode === 409) {
-      console.log(`Namespace ${namespaceName} already exists.`);
-      return true;
-    }
-    throw error;
-  }
-};
-
-
-
-export const deployStoreHelmChart = async (namespace, storeName, storeType, domain,email,password,slug) => {
-  try {
-    console.log(`[Helm] Deploying ${storeType} for ${storeName}...`);
-    const command = getStoreCreationCommand(namespace,storeType,domain,email,password,slug);
-    const { stdout, stderr } = await execPromise(command);
-
-    console.log(`[Helm] Success: ${stdout}`);
-    return true;
-
-  } catch (error) {
-    console.error(`[Helm] Error: ${error.stderr || error.message}`);
-    throw new Error(`Helm installation failed: ${error.message}`);
-  }
-};
-
-
-
-export const deleteStoreResources = async (namespace) => {
-  try {
-    console.log(`[K8s] Deleting namespace: ${namespace}...`);
-    const command = getStoreDeletionCommand(namespace);
-  
-    await execPromise(command);
-    
-    console.log(`[K8s] Delete command issued for ${namespace}`);
-    return true;
-
-  } catch (error) {
-    if (error.stderr && error.stderr.includes("not found")) {
-      console.log(`[K8s] Namespace ${namespace} already deleted.`);
-      return true;
-    }
-    
-    console.error(`[K8s] Delete Error:`, error.message);
-    throw error;
-  }
-};
 
 
 export const executeHelmCommand = async(command) => {
@@ -72,10 +10,33 @@ export const executeHelmCommand = async(command) => {
     console.log(`[Helm] Deploying`);
     const { stdout } = await execPromise(command);
     console.log(`[Helm] Success: ${stdout}`);
-    return true;
-
   } catch (error) {
     console.error(`[Helm] Error: ${error.stderr || error.message}`);
     throw new Error(`Helm installation failed: ${error.message}`);
   }
+}
+
+
+export const createNameSpaceAndBuildStore = async(namespace, storeType, domain,adminEmail, adminPassword, slug) => {
+  console.log(`[Background] Starting deployment for (${namespace})...`);
+  const namespaceCreationCommand = getStoreNamespaceCreationCommand(namespace);
+  await executeHelmCommand(namespaceCreationCommand);
+  const command = getStoreCreationCommand(namespace,storeType,domain,adminEmail,adminPassword,slug);
+  await executeHelmCommand(command);
+  console.log(`[Background] Store ${namespace} is now READY!`);
+
+}
+
+export const deleteNameSpace = async(namespace) => {
+  console.log(`[Background] Deleting resources for namespace: ${namespace}...`);
+  const command = getStoreNamespaceDeletionCommand(namespace);
+  await executeHelmCommand(command);
+  console.log(`[Background] Store ${namespace} deleted successfully from DB & K8s`);
+}
+
+export const deployMedusaStoreFront = async(namespace,slug,domain,backendUrl, publishableKey) => {
+  console.log(`[Background] Starting Storefront for: ${slug}...`);
+  const command = getMedusaStoreCommand(namespace,slug,domain,backendUrl, publishableKey);
+  await executeHelmCommand(command);
+  console.log(`[Background] Storefront ${slug} is now READY!`);
 }
