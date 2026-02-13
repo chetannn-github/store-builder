@@ -9,7 +9,7 @@ const DomainGuide = () => {
       {/* Header */}
       <div>
         <h2 className="mb-4 text-2xl font-bold text-foreground">
-          Custom Domain Setup
+          Custom Domain Setup (Woocommerce)
         </h2>
         <p className="text-muted-foreground">
           Link your brand domain (e.g., mybrand.com) to our Kubernetes-powered
@@ -29,7 +29,6 @@ const DomainGuide = () => {
           <li>We verify domain ownership using a TXT record.</li>
           <li>Traffic is routed to our Ingress controller using CNAME.</li>
           <li>Kubernetes updates routing rules dynamically.</li>
-          <li>SSL certificate is auto-generated using Let's Encrypt.</li>
         </ul>
       </div>
 
