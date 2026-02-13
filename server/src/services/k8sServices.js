@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 import util from 'util';
-import { getStoreCreationCommand, getStoreNamespaceCreationCommand, getStoreNamespaceDeletionCommand } from '../utils/commands';
+import { getStoreCreationCommand, getStoreNamespaceCreationCommand, getStoreNamespaceDeletionCommand } from '../utils/commands.js';
 
 const execPromise = util.promisify(exec);
 
