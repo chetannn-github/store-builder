@@ -118,9 +118,11 @@ export const createStore = async (req, res) => {
 
 export const deleteStore = async (req, res) => {
   try {
-    //! todo check if owner 
     const { storeId } = req.body;
-    const store = await Store.findById(storeId);
+    const store = await Store.findOne({
+      _id: storeId,
+      owner: req.user.userId,
+    });
 
     if (!store) {
       return res.status(404).json({
@@ -190,7 +192,10 @@ export const deployStorefront = async (req, res) => {
             });
         }
 
-        const store = await Store.findById(storeId);
+        const store = await Store.findOne({
+          _id: storeId,
+          owner: req.user.userId,
+        });
 
         if (!store) {
             return res.status(404).json({
