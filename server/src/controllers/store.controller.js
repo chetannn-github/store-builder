@@ -1,10 +1,10 @@
 import Store from '../models/store.model.js';
 import crypto from "crypto";
-import { createK8sNamespace, deleteStoreResources, deployStoreHelmChart, executeHelmCommand } from '../services/k8sServices.js';
+import { createK8sNamespace, executeHelmCommand } from '../services/k8sServices.js';
 import { getStoreAdminUrl, getStoreDomain } from '../utils/helper.js';
 import { MAX_STORE_FREE_LIMIT, PROHIBITED_SLUG } from '../utils/constant.js';
 import { PROTOCOL } from '../config/env.js';
-import { getMedusaStoreCommand } from '../utils/commands.js';
+import { getMedusaStoreCommand, getStoreCreationCommand, getStoreDeletionCommand } from '../utils/commands.js';
 
 
 
@@ -76,7 +76,8 @@ export const createStore = async (req, res) => {
       try {
         console.log(`[Background] Starting deployment for ${name} (${namespace})...`);
         await createK8sNamespace(namespace);
-        await deployStoreHelmChart(namespace, name, storeType, domain, adminEmail, adminPassword,slug);
+        const command = getStoreCreationCommand(namespace,storeType,domain,adminEmail,adminPassword,slug);
+        await executeHelmCommand(command);
         await Store.findByIdAndUpdate(store._id, {
           status: storeType === "medusa" ? "BACKEND_READY" : "READY",
           storeUrl: `${PROTOCOL}${domain}`,
@@ -143,7 +144,8 @@ export const deleteStore = async (req, res) => {
     (async () => {
       try {
         console.log(`[Background] Deleting resources for namespace: ${store.namespace}...`);
-        await deleteStoreResources(store.namespace);
+        const command = getStoreDeletionCommand(namespace);
+        await executeHelmCommand(command);
         await Store.findByIdAndDelete(storeId);
         console.log(`[Background] Store ${store.name} deleted successfully from DB & K8s ✅`);
 
