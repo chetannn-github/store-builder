@@ -76,7 +76,7 @@ export const createStore = async (req, res) => {
       try {
         console.log(`[Background] Starting deployment for ${name} (${namespace})...`);
         const namespaceCreationCommand = getStoreNamespaceCreationCommand(namespace);
-        await executeHelmCommand(command);
+        await executeHelmCommand(namespaceCreationCommand);
         const command = getStoreCreationCommand(namespace,storeType,domain,adminEmail,adminPassword,slug);
         await executeHelmCommand(command);
         await Store.findByIdAndUpdate(store._id, {
