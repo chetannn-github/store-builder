@@ -1,11 +1,9 @@
 import Store from '../models/store.model.js';
 import crypto from "crypto";
-import { executeHelmCommand } from '../services/k8sServices.js';
+import { createNameSpaceAndBuildStore, deleteNameSpace, deployMedusaStoreFront } from '../services/k8sServices.js';
 import { getStoreAdminUrl, getStoreDomain } from '../utils/helper.js';
 import { MAX_STORE_FREE_LIMIT, PROHIBITED_SLUG } from '../utils/constant.js';
 import { PROTOCOL } from '../config/env.js';
-import { getMedusaStoreCommand, getStoreCreationCommand, getStoreNamespaceCreationCommand, getStoreNamespaceDeletionCommand } from '../utils/commands.js';
-
 
 
 
@@ -74,22 +72,15 @@ export const createStore = async (req, res) => {
 
     (async () => {
       try {
-        console.log(`[Background] Starting deployment for ${name} (${namespace})...`);
-        const namespaceCreationCommand = getStoreNamespaceCreationCommand(namespace);
-        await executeHelmCommand(namespaceCreationCommand);
-        const command = getStoreCreationCommand(namespace,storeType,domain,adminEmail,adminPassword,slug);
-        await executeHelmCommand(command);
+        await createNameSpaceAndBuildStore(namespace, storeType, domain,adminEmail, adminPassword, slug);
         await Store.findByIdAndUpdate(store._id, {
           status: storeType === "medusa" ? "BACKEND_READY" : "READY",
           storeUrl: `${PROTOCOL}${domain}`,
           adminUrl : getStoreAdminUrl(storeType, slug)
         });
 
-        console.log(`[Background] Store ${name} is now READY! 🟢`);
-
       } catch (err) {
         console.error(`[Background] Deployment Failed for ${name}:`, err);
-        
         await Store.findByIdAndUpdate(store._id, {
           status: "FAILED",
           failureReason: err.message
@@ -144,12 +135,8 @@ export const deleteStore = async (req, res) => {
 
     (async () => {
       try {
-        console.log(`[Background] Deleting resources for namespace: ${store.namespace}...`);
-        const command = getStoreNamespaceDeletionCommand(store.namespace);
-        await executeHelmCommand(command);
+        await deleteNameSpace(store.namespace);
         await Store.findByIdAndDelete(storeId);
-        console.log(`[Background] Store ${store.name} deleted successfully from DB & K8s ✅`);
-
       } catch (err) {
         console.error(`[Background] Delete Failed for ${store.name}:`, err);
         await Store.findByIdAndUpdate(storeId, {
@@ -234,28 +221,19 @@ export const deployStorefront = async (req, res) => {
         });
 
         (async () => {
-            try {
-                console.log(`[Background] Starting Storefront for: ${store.slug}...`);
-                
-                const namespace = store.namespace;
-                const slug = store.slug;
-                const domain = store.domain;
-                const backendUrl = `${PROTOCOL}api-${domain}`; 
+            try {  
+              const namespace = store.namespace;
+              const slug = store.slug;
+              const domain = store.domain;
+              const backendUrl = `${PROTOCOL}api-${domain}`; 
 
-                const command = getMedusaStoreCommand(namespace,slug,domain,backendUrl, publishableKey);
-                
-                await executeHelmCommand(command);
-
-                await Store.findByIdAndUpdate(storeId, { 
-                    status: "READY", 
-                    updatedAt: new Date() 
-                });
-                
-                console.log(`[Background] Storefront ${slug} is now READY! ✅`);
-
+              await deployMedusaStoreFront(namespace,slug,domain,backendUrl, publishableKey);
+              await Store.findByIdAndUpdate(storeId, { 
+                  status: "READY", 
+                  updatedAt: new Date() 
+              });
             } catch (err) {
                 console.error(`[Background] Deployment Failed for ${store.slug}:`, err);
-                
                 await Store.findByIdAndUpdate(storeId, {
                     status: "FAILED",
                     failureReason: err.message
