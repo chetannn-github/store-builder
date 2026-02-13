@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import dns from 'dns/promises';
 import Store from '../models/store.model.js';
 import mongoose from 'mongoose';
-import { executeHelmCommand } from '../services/k8sServices.js';
+import { executeHelmCommand, updateCustomDomain } from '../services/k8sServices.js';
 import { getCustomDomainCommand } from '../utils/commands.js';
 
 export const initiateDomainConnect = async (req, res) => {
@@ -92,19 +92,18 @@ export const activateDomain = async (req, res) => {
                 message: "Please verify your DNS records first." 
             });
         }
-
-        const helmCommand = getCustomDomainCommand(store);
-        executeHelmCommand(helmCommand)
-            .then(async () => {
+        (async () => {
+            try {
+                await updateCustomDomain(store);
                 store.domainStatus = 'ACTIVE';
                 await store.save();
-                console.log(`✅ Domain ${store.customDomain} is now ACTIVE`);
-            })
-            .catch(async (err) => {
-                console.error("❌ Helm Upgrade Failed:", err);
+                console.log(`Domain ${store.customDomain} is now ACTIVE`);
+            } catch (err) {
+                console.error(" Helm Upgrade Failed:", err);
                 store.domainStatus = 'VALIDATION_FAILED';
                 await store.save();
-            });
+            }
+        })();
 
         res.status(202).json({
             success: true,
