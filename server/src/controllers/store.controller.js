@@ -208,7 +208,7 @@ export const deployStorefront = async (req, res) => {
             });
         }
 
-        if (!store.namespace || !store.slug || store.status !== "BACKEND_READY") {
+        if (!store.namespace || !store.slug || !(store.status === "BACKEND_READY" || store.status === "READY")) {
             return res.status(409).json({
                 success: false,
                 error: "Pre-requisite Failed",
