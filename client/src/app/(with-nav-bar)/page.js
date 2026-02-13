@@ -52,7 +52,8 @@ const Index = () => {
           </h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Launch WooCommerce or Medusa stores in seconds with automated setup, database, and domain configuration — no manual DevOps needed.
+            A simple platform to quickly launch your online store without worrying about servers or setup.
+
           </p>
 
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
