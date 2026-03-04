@@ -176,7 +176,6 @@ export default function Customize() {
         { message: userText, storeId },
         token
       );
-console.log(json);
 
       if (json.success) {
         setMessages((prev) => [
@@ -193,7 +192,7 @@ console.log(json);
         if (json.toolExecuted) {
           console.log(`[Action Triggered]: ${json.toolName} - Refreshing store preview...`);
           setIframeKey((prevKey) => prevKey + 1);
-          setStoreUrl(json?.structured?.link)
+          setStoreUrl(normalizeUrl(json?.structured?.link));
         }
         
       } else {
