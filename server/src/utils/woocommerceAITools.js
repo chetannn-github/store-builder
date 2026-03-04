@@ -142,6 +142,46 @@ export const woocommerceAITools = [
       description: "Guide the user to SEO settings, permalinks, or site visibility.",
       parameters: { type: "object", properties: {} }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToInventory",
+      description: "Guide user to manage stock levels, out-of-stock products, and inventory settings.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToTaxSettings",
+      description: "Guide user to setup GST, VAT, or other tax calculations for their products.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToEmailTemplates",
+      description: "Guide user to customize the emails sent to customers (Order confirmation, invoices).",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToMediaLibrary",
+      description: "Guide user to manage uploaded images, logos, and product photos.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToSystemStatus",
+      description: "Guide user to check if the store has any technical errors or server issues.",
+      parameters: { type: "object", properties: {} }
+    }
   }
 ];
 
@@ -334,6 +374,50 @@ export const aiActionMap = {
       link: getAdminLink(store, "options-permalink.php"),
       linkLabel: "🔍 SEO/Link Settings"
     })
+  },
+  guideToInventory: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Stock manage karne ke liye inventory page pe jao. Yahan aap check kar sakte ho kaunsa item out-of-stock hone wala hai! 📦",
+      link: getAdminLink(store, "admin.php?page=wc-reports&tab=stock"),
+      linkLabel: "📦 Check Inventory"
+    })
+  },
+
+  guideToTaxSettings: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "GST ya Tax settings set karne ke liye niche click karo. Yahan aap 'Tax Classes' aur 'Standard Rates' define kar sakte ho. 🧾",
+      link: getAdminLink(store, "admin.php?page=wc-settings&tab=tax"),
+      linkLabel: "🧾 Setup Tax/GST"
+    })
+  },
+
+  guideToEmailTemplates: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Customer ko jo emails jaate hain unka design ya content change karne ke liye yahan jao. 📧",
+      link: getAdminLink(store, "admin.php?page=wc-settings&tab=email"),
+      linkLabel: "📧 Edit Email Templates"
+    })
+  },
+
+  guideToMediaLibrary: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Aapki saari photos, logos aur files yahan store hoti hain. Inhe delete ya edit karne ke liye Library kholo. 🖼️",
+      link: getAdminLink(store, "upload.php"),
+      linkLabel: "🖼️ Media Library"
+    })
+  },
+
+  guideToSystemStatus: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Agar store mein kuch gadbad lag rahi hai, toh System Status check karo. Ye batayega ki server aur plugins sahi se kaam kar rahe hain ya nahi. 🛠️",
+      link: getAdminLink(store, "admin.php?page=wc-status"),
+      linkLabel: "🛠️ Check System Health"
+    })
   }
 
 };
@@ -382,5 +466,17 @@ export const SUGGESTION_RULES = [
   {
     condition: () => true, 
     data: { title: "👥 Manage Staff", prompt: "Staff members ya users kaise manage karu?" }
+  },
+  {
+    condition: () => true, 
+    data: { title: "📧 Custom Emails", prompt: "Mujhe customer ko jaane wale order emails edit karne hain." }
+  },
+  {
+    condition: () => true, 
+    data: { title: "🧾 Setup GST", prompt: "Store pe GST/Tax kaise calculate karu?" }
+  },
+  {
+    condition: () => true, 
+    data: { title: "🖼️ Manage Photos", prompt: "Meri saari uploaded images kahan dikhengi?" }
   }
 ];
