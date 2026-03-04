@@ -32,7 +32,6 @@ export const processAIChat = async (req, res) => {
     let isToolExecuted = false;
     let executedToolName = null;
 
-    // 1. Agar AI ne kisi Tool ko call kiya hai
     if (aiMsg.tool_calls && aiMsg.tool_calls.length > 0) {
       const toolCall = aiMsg.tool_calls[0];
       const fnName = toolCall.function.name;
@@ -42,7 +41,6 @@ export const processAIChat = async (req, res) => {
 
       if (action) {
         actionData = await action.execute(namespace, args);
-        // Dynamic reply direct tere Action Map se aayega
         finalReply = action.getReply(actionData, args);
         executedToolName = fnName;
         isToolExecuted = true;
@@ -50,11 +48,9 @@ export const processAIChat = async (req, res) => {
         finalReply = "Sorry bhai, ye function abhi main seekh raha hoon.";
       }
     } else {
-      // 2. Agar koi tool call nahi hua (Normal Chat)
       finalReply = aiMsg.content || "Done bhai! Batao aur kya karna hai?";
     }
 
-    // 3. Database mein Chat Save karo
     await Chat.findOneAndUpdate(
       { storeId }, 
       { 
@@ -70,7 +66,6 @@ export const processAIChat = async (req, res) => {
       { upsert: true, new: true }
     );
 
-    // 4. Single Unified Return (Frontend ke liye ekdum mast format)
     return res.json({
       success: true,
       reply: finalReply,
@@ -120,7 +115,7 @@ export const getAISuggestedTasks = async (req, res) => {
     }
     return res.json({
       success: true,
-      data: activeSuggestions.slice(0, 4)
+      data: activeSuggestions
     });
 
   } catch (error) {
