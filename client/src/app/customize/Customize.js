@@ -51,7 +51,7 @@ export default function Customize() {
   const storeId = searchParams.get("storeId");
   
   const [storeUrl, setStoreUrl] = useState(
-    searchParams.get("url") || ""
+    normalizeUrl(searchParams.get("url") || "")
   );
 
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
@@ -136,6 +136,9 @@ export default function Customize() {
     if (!/^https?:\/\//i.test(url)) {
       return "https://" + url;
     }
+    if (finalUrl.match(/\/wp-admin$/i)) {
+    finalUrl += "/";
+  }
     return url;
   };
 
