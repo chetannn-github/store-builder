@@ -89,30 +89,54 @@ export const woocommerceAITools = [
   }
 ];
 
+const getAdminLink = (store, path = "") => {
+  
+  const baseAdminUrl = store.adminUrl.replace(/\/$/, ""); 
+  return path ? `${baseAdminUrl}/${path}` : `${baseAdminUrl}/`;
+};
+
 export const aiActionMap = {
   getStoreAudit: {
     execute: async (ns) => await woo.getStoreAudit(ns),
-    getReply: (result) => {
+    getReply: (result, args, store) => {
       const summary = result?.audit?.summary || {};
       const products = summary.totalProducts || 0;
       const orders = summary.totalOrders || 0;
       const coupons = summary.totalCoupons || 0;
       const codStatus = summary.isCodEnabled ? "enabled ✅" : "disabled ❌";
 
-      return `Here is your store audit: You currently have ${products} products, ${orders} orders, and ${coupons} active coupons. Cash on Delivery is currently ${codStatus}. Let me know what you'd like to manage next! 📊`;
+      return {
+        message: `Here is your store audit: You currently have ${products} products, ${orders} orders, and ${coupons} active coupons. Cash on Delivery is currently ${codStatus}. Let me know what you'd like to manage next! 📊`,
+        link: store.adminUrl, // Seedha Dashboard khulega
+        linkLabel: "📊 Open Dashboard"
+      };
     }
   },
   
   enableCODPayment: {
     execute: async (ns) => await woo.enableCODPayment(ns),
-    getReply: () => "Cash on Delivery (COD) has been successfully enabled! Your customers can now select this payment method during checkout. 💳"
+    getReply: (result, args, store) => {
+      return {
+        message: "Cash on Delivery (COD) has been successfully enabled! Your customers can now select this payment method during checkout. 💳",
+        link: getAdminLink(store, "admin.php?page=wc-settings&tab=checkout"),
+        linkLabel: "💳 View Payment Settings"
+      };
+    }
   },
   
   checkPaymentStatus: {
     execute: async (ns) => await woo.checkPaymentStatus(ns),
-    getReply: (result) => result.isCODEnabled 
-      ? "Payment status check complete. Cash on Delivery (COD) is currently active and available for your customers. ✅" 
-      : "Payment status check complete. Cash on Delivery (COD) is currently disabled. Would you like me to enable it for you?"
+    getReply: (result, args, store) => {
+      const msg = result.isCODEnabled 
+        ? "Payment status check complete. Cash on Delivery (COD) is currently active and available for your customers. ✅" 
+        : "Payment status check complete. Cash on Delivery (COD) is currently disabled. Would you like me to enable it for you?";
+      
+      return {
+        message: msg,
+        link: getAdminLink(store, "admin.php?page=wc-settings&tab=checkout"),
+        linkLabel: "⚙️ Check Settings"
+      };
+    }
   },
   
   addProductAndGetLink: {
@@ -132,17 +156,25 @@ export const aiActionMap = {
   
   createCoupon: {
     execute: async (ns, args) => await woo.createCoupon(ns, args),
-    getReply: (result, args) => {
+    getReply: (result, args, store) => {
       const discountSymbol = args.type === 'percent' ? '%' : ' flat';
-      return `Your promo code is ready! Customers can now use the code '${args.code.toUpperCase()}' at checkout to get a ${args.amount}${discountSymbol} discount. 🎟️`;
+      return {
+        message: `Your promo code is ready! Customers can now use the code '${args.code.toUpperCase()}' at checkout to get a ${args.amount}${discountSymbol} discount. 🎟️`,
+        link: getAdminLink(store, "edit.php?post_type=shop_coupon"),
+        linkLabel: "🎫 View Coupons"
+      };
     }
   },
   
   getAllCoupons: {
     execute: async (ns) => await woo.getAllCoupons(ns),
-    getReply: (result) => {
+    getReply: (result, args, store) => {
       if (!result?.count || result.count === 0) {
-        return "You currently don't have any active coupons in your store. Let me know if you want me to create a new one! 🎫";
+        return {
+          message: "You currently don't have any active coupons in your store. Let me know if you want me to create a new one! 🎫",
+          link: getAdminLink(store, "edit.php?post_type=shop_coupon"),
+          linkLabel: "➕ Create Coupon"
+        };
       }
       
       const couponDetails = result.data.map((coupon, index) => {
@@ -150,18 +182,34 @@ export const aiActionMap = {
         return `${index + 1}. Code: ${coupon.code.toUpperCase()} | ID: ${coupon.id} | Discount: ${coupon.amount}${discountSymbol}`;
       }).join("\n");
 
-      return `I found ${result.count} active coupons in your store:\n\n${couponDetails}\n\nIf you need to remove any old ones, just tell me the Coupon ID and I'll delete it for you! 🗑️`;
+      return {
+        message: `I found ${result.count} active coupons in your store:\n\n${couponDetails}\n\nIf you need to remove any old ones, just tell me the Coupon ID and I'll delete it for you! 🗑️`,
+        link: getAdminLink(store, "edit.php?post_type=shop_coupon"),
+        linkLabel: "🛠️ Manage Coupons"
+      };
     }
   },
   
   deleteStoreCoupon: {
     execute: async (ns, args) => await woo.deleteStoreCoupon(ns, args.couponId),
-    getReply: (result, args) => `The coupon with ID ${args.couponId} has been permanently deleted from your store. It can no longer be used by customers. 🗑️`
+    getReply: (result, args, store) => {
+      return {
+        message: `The coupon with ID ${args.couponId} has been permanently deleted from your store. It can no longer be used by customers. 🗑️`,
+        link: getAdminLink(store, "edit.php?post_type=shop_coupon"),
+        linkLabel: "🎫 View Remaining Coupons"
+      };
+    }
   },
   
   getAllOrders: {
     execute: async (ns) => await woo.getAllOrders(ns),
-    getReply: (result) => `You currently have a total of ${result.count} orders placed in your store. Let me know if you need to review specific order details! 📦`
+    getReply: (result, args, store) => {
+      return {
+        message: `You currently have a total of ${result.count} orders placed in your store. Let me know if you need to review specific order details! 📦`,
+        link: getAdminLink(store, "edit.php?post_type=shop_order"),
+        linkLabel: "📦 View Orders"
+      };
+    }
   }
 };
 
