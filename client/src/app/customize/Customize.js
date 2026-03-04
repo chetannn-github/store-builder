@@ -423,7 +423,7 @@ export default function Customize() {
         {/* Animated Preview */}
         <div className="flex flex-1 items-center justify-center overflow-hidden">
           <div
-            className="h-full transition-[width] duration-300 ease-in-out"
+            className="h-full transition-[width] duration-300 ease-in-out relative"
             style={{
               width: DEVICE_WIDTH[deviceView],
               maxWidth: "100%",
