@@ -183,7 +183,7 @@ export default function Customize() {
           {
             id: String(Date.now() + 1),
             role: "bot",
-            content: json.structured?.message,
+            content: json.reply,
             meta : {...json?.structured } ,
             timestamp: new Date(),
           },
