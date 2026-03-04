@@ -20,25 +20,17 @@ import { Button } from "../_components/ui/button";
 import { Input } from "../_components/ui/input";
 import { cn } from "../../lib/utils";
 import Loader from "../_components/Loader";
+import api from "@/lib/api";
 
-/* ------------------ CONSTANTS ------------------ */
 
 const INITIAL_MESSAGES = [
   {
     id: "1",
     role: "bot",
     content:
-      "Hey! 👋 I'm your store customization assistant. Tell me what you'd like to change — colors, layout, products, branding — and I'll help you out!",
+      "Hey! 👋 I'm your store manager assistant. How can I help you bro ? ",
     timestamp: new Date(),
   },
-];
-
-const BOT_RESPONSES = [
-  "Got it! I'm applying those changes to your store now. Check the preview on the right →",
-  "Great choice! That's going to look amazing. Updating the preview...",
-  "Sure thing! I've noted that customization. What else would you like to tweak?",
-  "Perfect! The store is looking better already. Any other changes?",
-  "Done! Take a look at the preview. Want me to adjust anything else?",
 ];
 
 const DEVICE_ORDER = ["desktop", "tablet", "mobile"];
@@ -56,7 +48,8 @@ export default function Customize() {
   const searchParams = useSearchParams();
 
   const storeName = searchParams.get("name") || "Store";
-
+  const storeId = searchParams.get("storeId");
+  
   const [storeUrl, setStoreUrl] = useState(
     searchParams.get("url") || ""
   );
@@ -68,13 +61,66 @@ export default function Customize() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [deviceView, setDeviceView] = useState("desktop");
   const [isIframeLoading, setIsIframeLoading] = useState(true);
+  const [suggestedActions, setSuggestedActions] = useState([]);
+  const [loadingActions, setLoadingActions] = useState(true);
+  const [loadingChat, setLoadingChat] = useState(true);
 
   const scrollRef = useRef(null);
 
   useEffect(() => {
+    const fetchChatHistory = async () => {
+      if (!storeId) {
+        setLoadingChat(false);
+        return;
+      }
+      setLoadingChat(true);
+      
+      
+      try {
+        const token = localStorage.getItem("jwt");
+        const json = await api.get(`/ai/chat/${storeId}`,token);
+
+        if (json.success && json.data && json.data.length > 0) {
+          const formattedHistory = json.data.map((msg, idx) => ({
+            id: msg._id || String(Date.now() + idx),
+            role: msg.role === "assistant" ? "bot" : "user",
+            content: msg.content,
+            timestamp: new Date(msg.timestamp || Date.now()),
+          }));
+          
+          setMessages(formattedHistory);
+        }
+      } catch (error) {
+        console.error("Failed to fetch history:", error);
+      } finally {
+        setLoadingChat(false);
+      }
+    };
+
+    const fetchSuggestion = async () => {
+      if (!storeId) return;
+      setLoadingActions(true);
+      
+      try {
+        const token = localStorage.getItem("jwt");
+        const json = await api.get(`/ai/suggestions/${storeId}`,token);
+
+        if (json.success && json.data && json.data.length > 0) {
+          setSuggestedActions(json.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch history:", error);
+      }
+      setLoadingActions(false);
+    }
+
+    fetchChatHistory();
+    fetchSuggestion();
+  }, [storeId]);
+
+  useEffect(() => {
     setIsIframeLoading(true);
   }, [iframeKey, storeUrl]);
-  /* ------------------ EFFECTS ------------------ */
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -100,15 +146,16 @@ export default function Customize() {
     setDeviceView(next);
   };
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+ const handleSend = async () => {
+    if (!input.trim() || !storeId) return; 
+    const userText = input.trim();
 
     setMessages((prev) => [
       ...prev,
       {
         id: String(Date.now()),
         role: "user",
-        content: input.trim(),
+        content: userText,
         timestamp: new Date(),
       },
     ]);
@@ -116,22 +163,50 @@ export default function Customize() {
     setInput("");
     setIsTyping(true);
 
-    setTimeout(() => {
+    try {
+      const token = localStorage.getItem("jwt");
+    
+      const json = await api.post('/ai/chat', 
+        { message: userText, storeId },
+        token
+      );
+
+
+      if (json.success) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: String(Date.now() + 1),
+            role: "bot",
+            content: json.reply,
+            timestamp: new Date(),
+          },
+        ]);
+
+        if (json.toolExecuted) {
+          console.log(`[Action Triggered]: ${json.toolName} - Refreshing store preview...`);
+          setIframeKey((prevKey) => prevKey + 1);
+        }
+        
+      } else {
+        throw new Error(json.error || "Failed to process request");
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
       setMessages((prev) => [
         ...prev,
         {
-          id: String(Date.now() + 1),
+          id: String(Date.now() + 2),
           role: "bot",
-          content:
-            BOT_RESPONSES[Math.floor(Math.random() * BOT_RESPONSES.length)],
+          content: "Sorry bhai, network issue ho gaya. Try again!",
           timestamp: new Date(),
         },
       ]);
+    } finally {
       setIsTyping(false);
-    }, 1200);
+    }
   };
 
-  /* ------------------ RENDER ------------------ */
 
   return (
     <div className="flex h-[calc(100vh-64px)] w-full overflow-hidden">
@@ -166,60 +241,92 @@ export default function Customize() {
         </div>
 
         {/* Messages */}
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
-        >
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={cn(
-                "flex gap-2.5 max-w-[92%]",
-                msg.role === "user" && "ml-auto flex-row-reverse"
-              )}
-            >
+        {loadingChat ? (
+          <div className="flex h-full items-center justify-center">
+            <Loader label="Loading chat..." />
+          </div>
+        ) :
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto px-4 py-4 space-y-4 hide-scrollbar"
+          >
+            {messages.map((msg) => (
               <div
+                key={msg.id}
                 className={cn(
-                  "flex h-7 w-7 items-center justify-center rounded-full",
-                  msg.role === "bot"
-                    ? "bg-primary/10 text-primary"
-                    : "bg-secondary"
+                  "flex gap-2.5 max-w-[92%]",
+                  msg.role === "user" && "ml-auto flex-row-reverse"
                 )}
               >
-                {msg.role === "bot" ? (
-                  <Bot className="h-3.5 w-3.5" />
-                ) : (
-                  <User className="h-3.5 w-3.5" />
-                )}
-              </div>
+                <div
+                  className={cn(
+                    "flex h-7 w-7 items-center justify-center rounded-full",
+                    msg.role === "bot"
+                      ? "bg-primary/10 text-primary"
+                      : "bg-secondary"
+                  )}
+                >
+                  {msg.role === "bot" ? (
+                    <Bot className="h-3.5 w-3.5" />
+                  ) : (
+                    <User className="h-3.5 w-3.5" />
+                  )}
+                </div>
 
-              <div
-                className={cn(
-                  "rounded-2xl px-3.5 py-2.5 text-sm",
-                  msg.role === "bot"
-                    ? "bg-secondary rounded-tl-sm"
-                    : "bg-primary text-primary-foreground rounded-tr-sm"
-                )}
-              >
-                {msg.content}
+                <div
+                  className={cn(
+                    "rounded-2xl px-3.5 py-2.5 text-sm",
+                    msg.role === "bot"
+                      ? "bg-secondary rounded-tl-sm"
+                      : "bg-primary text-primary-foreground rounded-tr-sm"
+                  )}
+                >
+                  {msg.content}
+                </div>
               </div>
+            ))}
+
+            {isTyping && (
+              <div className="flex gap-2.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
+                  <Bot className="h-3.5 w-3.5 text-primary" />
+                </div>
+                <div className="rounded-2xl rounded-tl-sm bg-secondary px-4 py-3 flex gap-1">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce-dot"
+                      style={{ animationDelay: `${i * 0.15}s` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        }
+        <div className="border-t border-border px-3 pt-2.5 pb-1 overflow-y-auto hide-scrollbar ">
+          {loadingActions ? (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-8 w-28 shrink-0 animate-pulse rounded-lg bg-muted" />
+              ))}
             </div>
-          ))}
-
-          {isTyping && (
-            <div className="flex gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10">
-                <Bot className="h-3.5 w-3.5 text-primary" />
-              </div>
-              <div className="rounded-2xl rounded-tl-sm bg-secondary px-4 py-3 flex gap-1">
-                {[0, 1, 2].map((i) => (
-                  <span
-                    key={i}
-                    className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce-dot"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
-              </div>
+          ) : (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {suggestedActions.map((action) => (
+                <Button
+                  key={action.id}
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 rounded-lg text-xs h-8 border-border hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-colors"
+                  onClick={() => {
+                    setInput(action.prompt);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  {action.title}
+                </Button>
+              ))}
             </div>
           )}
         </div>
