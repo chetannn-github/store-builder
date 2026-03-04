@@ -288,14 +288,16 @@ export default function Customize() {
                 <p className="whitespace-pre-wrap">{msg.content}</p>
 
                 {msg.meta?.link && (
-                  <a
-                    href={msg.meta.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Button
+                    onClick={() => {
+                      const normalized = normalizeUrl(msg.meta.link);
+                      setStoreUrl(normalized);
+                      setIframeKey((k) => k + 1);
+                    }}
                     className="inline-block text-xs font-medium px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition"
                   >
                     {msg.meta.linkLabel || "View"}
-                  </a>
+                  </Button>
                 )}
               </div>
             </div>
