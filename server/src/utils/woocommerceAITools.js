@@ -110,6 +110,38 @@ export const woocommerceAITools = [
       description: "Guide the user to the store analytics/reports page to check sales and revenue.",
       parameters: { type: "object", properties: {} }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToUserManagement",
+      description: "Guide the user to manage staff, customers, or profile settings.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToPlugins",
+      description: "Guide the user to install new features, plugins, or manage existing ones.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToGeneralSettings",
+      description: "Guide the user to change store name, tagline, timezone, or email settings.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToSEO",
+      description: "Guide the user to SEO settings, permalinks, or site visibility.",
+      parameters: { type: "object", properties: {} }
+    }
   }
 ];
 
@@ -267,7 +299,43 @@ export const aiActionMap = {
       link: getAdminLink(store, "admin.php?page=wc-admin&path=/analytics/overview"),
       linkLabel: "📈 View Analytics"
     })
+  },
+  guideToUserManagement: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Aap apne customers aur staff members ko yahan se manage kar sakte hain. Naya user add karne ke liye 'Add New' pe click karein! 👥",
+      link: getAdminLink(store, "users.php"),
+      linkLabel: "👥 Manage Users"
+    })
+  },
+
+  guideToPlugins: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Store mein naye features (jaise WhatsApp chat, Invoice PDF) add karne ke liye plugins install karein. 🔌",
+      link: getAdminLink(store, "plugin-install.php"),
+      linkLabel: "🔌 Add New Plugins"
+    })
+  },
+
+  guideToGeneralSettings: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Store ka title, description ya contact email change karne ke liye General Settings mein jao. ⚙️",
+      link: getAdminLink(store, "options-general.php"),
+      linkLabel: "⚙️ General Settings"
+    })
+  },
+
+  guideToSEO: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "SEO aur links (Permalinks) manage karne ke liye niche click karein. Isse aapki site Google search mein behtar dikhegi! 🔍",
+      link: getAdminLink(store, "options-permalink.php"),
+      linkLabel: "🔍 SEO/Link Settings"
+    })
   }
+
 };
 
 export const SUGGESTION_RULES = [  
@@ -306,5 +374,13 @@ export const SUGGESTION_RULES = [
   {
     condition: (summary) => summary.totalOrders > 0, 
     data: { title: "📈 View Sales", prompt: "Mere store ki total sales aur analytics dikhao." }
+  },
+  {
+    condition: () => true, 
+    data: { title: "🔌 Add Features", prompt: "Mujhe store pe naye features/plugins add karne hain." }
+  },
+  {
+    condition: () => true, 
+    data: { title: "👥 Manage Staff", prompt: "Staff members ya users kaise manage karu?" }
   }
 ];
