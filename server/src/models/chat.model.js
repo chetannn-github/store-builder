@@ -10,6 +10,10 @@ const messageSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
+  meta: {
+    link: String,
+    linkLabel: String
+  },
   timestamp: { 
     type: Date, 
     default: Date.now 

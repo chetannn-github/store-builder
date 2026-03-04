@@ -27,7 +27,8 @@ export const processAIChat = async (req, res) => {
     const aiMsg = await getOpenAIResponse(message);
 
     // Default states
-    let finalReply = ""; 
+    let finalReply = "";
+    let structuredReply = null;
     let actionData = null;
     let isToolExecuted = false;
     let executedToolName = null;
@@ -41,7 +42,14 @@ export const processAIChat = async (req, res) => {
 
       if (action) {
         actionData = await action.execute(namespace, args);
-        finalReply = action.getReply(actionData, args);
+        const reply = action.getReply(actionData, args, store);
+        if (typeof reply === "string") {
+          finalReply = reply;
+        } else {
+          finalReply = reply.message;
+          structuredReply = reply;
+        }
+
         executedToolName = fnName;
         isToolExecuted = true;
       } else {
@@ -58,7 +66,7 @@ export const processAIChat = async (req, res) => {
           messages: { 
             $each: [
               { role: 'user', content: message },
-              { role: 'assistant', content: finalReply }
+              { role: 'assistant', content: finalReply, meta : structuredReply }
             ]
           } 
         } 
@@ -69,6 +77,7 @@ export const processAIChat = async (req, res) => {
     return res.json({
       success: true,
       reply: finalReply,
+      structured: structuredReply,
       data: actionData,
       toolExecuted: isToolExecuted,
       toolName: executedToolName

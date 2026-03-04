@@ -1,4 +1,5 @@
 import * as woo from "../services/woocommerceServices.js";
+import { extractProductPath } from "./helper.js";
 
 export const woocommerceAITools = [
   {
@@ -116,7 +117,17 @@ export const aiActionMap = {
   
   addProductAndGetLink: {
     execute: async (ns, args) => await woo.addProductAndGetLink(ns, args),
-    getReply: (result, args) => `Success! I've added '${args.name}' to your catalog priced at ${args.price}. You can view the live product here: ${result?.link || 'your store'}. The preview on the right is refreshing now! 🚀`
+
+    getReply: (result, args, store) => {
+      const productPath = extractProductPath(result?.link);
+      const fullUrl = `${store.storeUrl}${productPath}`;
+
+      return {
+        message: `Success! I've added '${args.name}' priced at ₹${args.price}.`,
+        link: fullUrl,
+        linkLabel: "🔗 View Live Product"
+      };
+    }
   },
   
   createCoupon: {

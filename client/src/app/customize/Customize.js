@@ -85,6 +85,7 @@ export default function Customize() {
             id: msg._id || String(Date.now() + idx),
             role: msg.role === "assistant" ? "bot" : "user",
             content: msg.content,
+            meta : msg.meta,
             timestamp: new Date(msg.timestamp || Date.now()),
           }));
           
@@ -250,40 +251,54 @@ export default function Customize() {
             ref={scrollRef}
             className="flex-1 overflow-y-auto px-4 py-4 space-y-4 hide-scrollbar"
           >
-            {messages.map((msg) => (
+           {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={cn(
+                "flex gap-2.5 max-w-[92%]",
+                msg.role === "user" && "ml-auto flex-row-reverse"
+              )}
+            >
+              {/* Avatar */}
               <div
-                key={msg.id}
                 className={cn(
-                  "flex gap-2.5 max-w-[92%]",
-                  msg.role === "user" && "ml-auto flex-row-reverse"
+                  "flex h-7 w-7 items-center justify-center rounded-full",
+                  msg.role === "bot"
+                    ? "bg-primary/10 text-primary"
+                    : "bg-secondary"
                 )}
               >
-                <div
-                  className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full",
-                    msg.role === "bot"
-                      ? "bg-primary/10 text-primary"
-                      : "bg-secondary"
-                  )}
-                >
-                  {msg.role === "bot" ? (
-                    <Bot className="h-3.5 w-3.5" />
-                  ) : (
-                    <User className="h-3.5 w-3.5" />
-                  )}
-                </div>
-
-                <div
-                  className={cn(
-                    "rounded-2xl px-3.5 py-2.5 text-sm",
-                    msg.role === "bot"
-                      ? "bg-secondary rounded-tl-sm"
-                      : "bg-primary text-primary-foreground rounded-tr-sm"
-                  )}
-                >
-                  {msg.content}
-                </div>
+                {msg.role === "bot" ? (
+                  <Bot className="h-3.5 w-3.5" />
+                ) : (
+                  <User className="h-3.5 w-3.5" />
+                )}
               </div>
+
+              {/* Message Bubble */}
+              <div
+                className={cn(
+                  "rounded-2xl px-3.5 py-2.5 text-sm space-y-2",
+                  msg.role === "bot"
+                    ? "bg-secondary rounded-tl-sm"
+                    : "bg-primary text-primary-foreground rounded-tr-sm"
+                )}
+              >
+                {/* Text Content */}
+                <p className="whitespace-pre-wrap">{msg.content}</p>
+
+                {msg.meta?.link && (
+                  <a
+                    href={msg.meta.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block text-xs font-medium px-3 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition"
+                  >
+                    {msg.meta.linkLabel || "View"}
+                  </a>
+                )}
+              </div>
+            </div>
             ))}
 
             {isTyping && (
