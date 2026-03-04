@@ -1,5 +1,4 @@
 import * as woo from "../services/woocommerceServices.js";
-import { extractProductPath } from "./helper.js";
 
 export const woocommerceAITools = [
   {
@@ -29,32 +28,17 @@ export const woocommerceAITools = [
   {
     type: "function",
     function: {
-      name: "addProductAndGetLink",
-      description: "Add a new product to the store and get its live URL.",
-      parameters: {
-        type: "object",
-        properties: {
-          name: { type: "string", description: "Name of the product" },
-          price: { type: "string", description: "Regular price of the product" }
-        },
-        required: ["name", "price"]
-      }
+      name: "guideToAddProduct",
+      description: "Guide the user to the product creation page. Call this when the user wants to add, list, or create a new product.",
+      parameters: { type: "object", properties: {} }
     }
   },
   {
     type: "function",
     function: {
-      name: "createCoupon",
-      description: "Create a discount coupon in the store.",
-      parameters: {
-        type: "object",
-        properties: {
-          code: { type: "string", description: "Coupon code, e.g., SAVE50" },
-          amount: { type: "string", description: "Discount value" },
-          type: { type: "string", enum: ["percent", "fixed_cart"], description: "Type of discount" }
-        },
-        required: ["code", "amount"]
-      }
+      name: "guideToCreateCoupon",
+      description: "Guide the user to the coupon management page. Call this when the user wants to create, add, or manage a discount coupon.",
+      parameters: { type: "object", properties: {} } 
     }
   },
   {
@@ -138,34 +122,6 @@ export const aiActionMap = {
       };
     }
   },
-  
-  addProductAndGetLink: {
-    execute: async (ns, args) => await woo.addProductAndGetLink(ns, args),
-
-    getReply: (result, args, store) => {
-      const productPath = extractProductPath(result?.link);
-      const fullUrl = `${store.storeUrl}${productPath}`;
-
-      return {
-        message: `Success! I've added '${args.name}' priced at ₹${args.price}.`,
-        link: fullUrl,
-        linkLabel: "🔗 View Live Product"
-      };
-    }
-  },
-  
-  createCoupon: {
-    execute: async (ns, args) => await woo.createCoupon(ns, args),
-    getReply: (result, args, store) => {
-      const discountSymbol = args.type === 'percent' ? '%' : ' flat';
-      return {
-        message: `Your promo code is ready! Customers can now use the code '${args.code.toUpperCase()}' at checkout to get a ${args.amount}${discountSymbol} discount. 🎟️`,
-        link: getAdminLink(store, "edit.php?post_type=shop_coupon"),
-        linkLabel: "🎫 View Coupons"
-      };
-    }
-  },
-  
   getAllCoupons: {
     execute: async (ns) => await woo.getAllCoupons(ns),
     getReply: (result, args, store) => {
@@ -210,45 +166,55 @@ export const aiActionMap = {
         linkLabel: "📦 View Orders"
       };
     }
+  },
+  guideToAddProduct: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => {
+      return {
+        message: "Adding a new product is super easy! Click the button below, enter your product name, price, upload an image, and hit 'Publish'. 📦",
+        link: getAdminLink(store, "post-new.php?post_type=product"),
+        linkLabel: "➕ Add New Product"
+      };
+    }
+  },
+
+  guideToCreateCoupon: {
+    execute: async () => ({ success: true }), // NO BACKEND CALL
+    getReply: (result, args, store) => {
+      return {
+        message: "To create a discount code, click the button below. Click 'Add coupon', type your custom code (e.g., FESTIVAL50), set the discount amount, and hit Publish! 🎟️",
+        link: getAdminLink(store, "edit.php?post_type=shop_coupon"),
+        linkLabel: "🎫 Create/Manage Coupons"
+      };
+    }
   }
 };
 
 
-export const SUGGESTION_RULES = [  {
+export const SUGGESTION_RULES = [  
+  {
     condition: (summary) => !summary.isCodEnabled,
-    data: { title: "💳 Enable COD", prompt: "Bhai, store pe Cash on Delivery (COD) chalu kar de." }
+    data: { title: "💳 Enable COD", prompt: "Store pe Cash on Delivery (COD) chalu kar do." }
   },
-    {
+  {
     condition: (summary) => summary.totalProducts === 0,
-    data: { title: "📦 Add First Product", prompt: "Ek 'Premium T-Shirt' add kar do 499 rupees mein." }
+    data: { title: "📦 Add First Product", prompt: "Bhai, mujhe naya product add karna hai, kahan se karu?" }
   },
   {
     condition: (summary) => summary.totalProducts > 0,
-    data: { title: "➕ Add Another Product", prompt: "Ek naya 'Smart Watch' add kar do 1999 rupees mein." }
+    data: { title: "➕ Add Another Product", prompt: "Mujhe ek aur naya product list karna hai store par." }
   },
   {
-    condition: (summary) => summary.totalProducts > 0 && summary.totalOrders === 0,
-    data: { title: "👀 Wait for Orders", prompt: "Bhai, kya mere products live hain? Koi order nahi aaya abhi tak." }
-  },
-  {
-    condition: (summary) => summary.totalProducts > 0 && summary.totalOrders > 0,
-    data: { title: "📈 Check Orders", prompt: "Dikhao abhi tak kitne orders aaye hain." }
+    condition: (summary) => summary.totalOrders === 0,
+    data: { title: "👀 Check Orders", prompt: "Bhai, kya mere store pe koi naya order aaya hai abhi tak?" }
   },
   {
     condition: (summary) => summary.totalCoupons === 0,
-    data: { title: "🎟️ Create Coupon", prompt: "Naye customers ke liye 'WELCOME50' coupon bana do 50% discount ke sath." }
+    data: { title: "🎟️ Create Coupon", prompt: "Customers ke liye discount coupon banana hai, guide karo." }
   },
   {
     condition: (summary) => summary.totalCoupons > 0,
-    data: { title: "🎫 View Coupons", prompt: "Mere store ke saare active coupons dikhao." }
-  },
-  {
-    condition: (summary) => summary.totalCoupons > 0,
-    data: { title: "🗑️ Manage Coupons", prompt: "Mujhe ek purana coupon delete karna hai, pehle saare coupons list karo." }
-  },
-  {
-    condition: (summary) => summary.isCodEnabled,
-    data: { title: "✅ Check Payments", prompt: "Verify karo ki mere store pe payment methods kaunse active hain." }
+    data: { title: "🎫 Manage Coupons", prompt: "Mere store ke saare active coupons dikhao." }
   },
   {
     condition: () => true, 
