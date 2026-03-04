@@ -176,7 +176,7 @@ export default function Customize() {
         { message: userText, storeId },
         token
       );
-
+console.log(json);
 
       if (json.success) {
         setMessages((prev) => [
@@ -184,7 +184,8 @@ export default function Customize() {
           {
             id: String(Date.now() + 1),
             role: "bot",
-            content: json.reply,
+            content: json.structured?.message,
+            meta : {...json?.structured } ,
             timestamp: new Date(),
           },
         ]);
@@ -192,6 +193,7 @@ export default function Customize() {
         if (json.toolExecuted) {
           console.log(`[Action Triggered]: ${json.toolName} - Refreshing store preview...`);
           setIframeKey((prevKey) => prevKey + 1);
+          setStoreUrl(json?.structured?.link)
         }
         
       } else {
