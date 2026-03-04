@@ -33,6 +33,16 @@ const INITIAL_MESSAGES = [
   },
 ];
 
+ const normalizeUrl = (url) => {
+    if (!url) return "";
+    if (!/^https?:\/\//i.test(url)) {
+      return "https://" + url;
+    }
+    if (finalUrl.match(/\/wp-admin$/i)) {
+    finalUrl += "/";
+  }
+    return url;
+  };
 const DEVICE_ORDER = ["desktop", "tablet", "mobile"];
 
 const DEVICE_WIDTH = {
@@ -131,16 +141,7 @@ export default function Customize() {
 
   /* ------------------ HELPERS ------------------ */
 
-  const normalizeUrl = (url) => {
-    if (!url) return "";
-    if (!/^https?:\/\//i.test(url)) {
-      return "https://" + url;
-    }
-    if (finalUrl.match(/\/wp-admin$/i)) {
-    finalUrl += "/";
-  }
-    return url;
-  };
+
 
   const cycleDevice = () => {
     const next =
