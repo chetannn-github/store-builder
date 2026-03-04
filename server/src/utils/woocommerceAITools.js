@@ -36,6 +36,14 @@ export const woocommerceAITools = [
   {
     type: "function",
     function: {
+      name: "guideToAllProducts",
+      description: "Guide the user to the products list page. Call this when they want to edit, delete, or manage existing products.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
       name: "guideToCreateCoupon",
       description: "Guide the user to the coupon management page. Call this when the user wants to create, add, or manage a discount coupon.",
       parameters: { type: "object", properties: {} } 
@@ -70,6 +78,38 @@ export const woocommerceAITools = [
       description: "Get a list of all customer orders in the store.",
       parameters: { type: "object", properties: {} }
     }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToThemeCustomization",
+      description: "Guide the user to customize their store's appearance, theme, logo, or colors.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToShippingSettings",
+      description: "Guide the user to set up shipping zones, delivery charges, or free shipping.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToPaymentGateways",
+      description: "Guide the user to set up online payment gateways like Stripe, PayPal, or Razorpay.",
+      parameters: { type: "object", properties: {} }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "guideToAnalytics",
+      description: "Guide the user to the store analytics/reports page to check sales and revenue.",
+      parameters: { type: "object", properties: {} }
+    }
   }
 ];
 
@@ -91,7 +131,7 @@ export const aiActionMap = {
 
       return {
         message: `Here is your store audit: You currently have ${products} products, ${orders} orders, and ${coupons} active coupons. Cash on Delivery is currently ${codStatus}. Let me know what you'd like to manage next! 📊`,
-        link: store.adminUrl, // Seedha Dashboard khulega
+        link: getAdminLink(store, ""), 
         linkLabel: "📊 Open Dashboard"
       };
     }
@@ -169,27 +209,66 @@ export const aiActionMap = {
   },
   guideToAddProduct: {
     execute: async () => ({ success: true }),
-    getReply: (result, args, store) => {
-      return {
-        message: "Adding a new product is super easy! Click the button below, enter your product name, price, upload an image, and hit 'Publish'. 📦",
-        link: getAdminLink(store, "post-new.php?post_type=product"),
-        linkLabel: "➕ Add New Product"
-      };
-    }
+    getReply: (result, args, store) => ({
+      message: "Adding a new product is super easy! Click the button below, enter your product name, price, upload an image, and hit 'Publish'. 📦",
+      link: getAdminLink(store, "post-new.php?post_type=product"),
+      linkLabel: "➕ Add New Product"
+    })
+  },
+
+  guideToAllProducts: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "You can view, edit, or delete all your existing products from the Products dashboard. Click below to manage your inventory! 📋",
+      link: getAdminLink(store, "edit.php?post_type=product"),
+      linkLabel: "📋 Manage Products"
+    })
   },
 
   guideToCreateCoupon: {
-    execute: async () => ({ success: true }), // NO BACKEND CALL
-    getReply: (result, args, store) => {
-      return {
-        message: "To create a discount code, click the button below. Click 'Add coupon', type your custom code (e.g., FESTIVAL50), set the discount amount, and hit Publish! 🎟️",
-        link: getAdminLink(store, "edit.php?post_type=shop_coupon"),
-        linkLabel: "🎫 Create/Manage Coupons"
-      };
-    }
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "To create a discount code, click the button below. Click 'Add coupon', type your custom code (e.g., FESTIVAL50), set the discount amount, and hit Publish! 🎟️",
+      link: getAdminLink(store, "edit.php?post_type=shop_coupon"),
+      linkLabel: "🎫 Create/Manage Coupons"
+    })
+  },
+  guideToThemeCustomization: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Want to change how your store looks? You can update your logo, colors, and layout right from the Theme Customizer. Click below to start designing! 🎨",
+      link: getAdminLink(store, "customize.php"),
+      linkLabel: "🎨 Customize Appearance"
+    })
+  },
+
+  guideToShippingSettings: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Setting up delivery charges is important! Click below to go to Shipping Settings. From there, you can add 'Shipping Zones' and set up flat rates or free delivery. 🚚",
+      link: getAdminLink(store, "admin.php?page=wc-settings&tab=shipping"),
+      linkLabel: "🚚 Shipping Settings"
+    })
+  },
+
+  guideToPaymentGateways: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Want to accept online payments? Go to the Payments tab below. You can enable default options or add plugins for Stripe, PayPal, or Razorpay! 💳",
+      link: getAdminLink(store, "admin.php?page=wc-settings&tab=checkout"),
+      linkLabel: "💳 Setup Online Payments"
+    })
+  },
+
+  guideToAnalytics: {
+    execute: async () => ({ success: true }),
+    getReply: (result, args, store) => ({
+      message: "Let's check your store's performance! You can see your total sales, top products, and revenue directly in the WooCommerce Analytics dashboard. 📈",
+      link: getAdminLink(store, "admin.php?page=wc-admin&path=/analytics/overview"),
+      linkLabel: "📈 View Analytics"
+    })
   }
 };
-
 
 export const SUGGESTION_RULES = [  
   {
@@ -218,6 +297,14 @@ export const SUGGESTION_RULES = [
   },
   {
     condition: () => true, 
-    data: { title: "🤖 Store Audit", prompt: "Store ki poori report do, kya-kya active hai abhi?" }
+    data: { title: "🎨 Change Store Look", prompt: "Mujhe store ka logo aur colors change karne hain." }
+  },
+  {
+    condition: () => true, 
+    data: { title: "🚚 Setup Shipping", prompt: "Delivery charges aur shipping kaise set karu?" }
+  },
+  {
+    condition: (summary) => summary.totalOrders > 0, 
+    data: { title: "📈 View Sales", prompt: "Mere store ki total sales aur analytics dikhao." }
   }
 ];
