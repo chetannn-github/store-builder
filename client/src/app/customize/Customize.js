@@ -35,12 +35,13 @@ const INITIAL_MESSAGES = [
 
  const normalizeUrl = (url) => {
     if (!url) return "";
+    if (url.match(/\/wp-admin$/i)) {
+      url += "/";
+    }
     if (!/^https?:\/\//i.test(url)) {
       return "https://" + url;
     }
-    if (finalUrl.match(/\/wp-admin$/i)) {
-    finalUrl += "/";
-  }
+    
     return url;
   };
 const DEVICE_ORDER = ["desktop", "tablet", "mobile"];
