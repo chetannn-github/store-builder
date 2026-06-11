@@ -16,3 +16,17 @@ export const getStoreAdminUrl = (storeType, slug) => {
 
     return `${PROTOCOL}${slug}.${BASE_DOMAIN}/wp-admin`
 }
+
+export const extractProductPath = (url) => {
+  try {
+    const parsed = new URL(url);
+    let pathname = parsed.pathname;
+    if (pathname.endsWith('/')) {
+      pathname = pathname.slice(0, -1);
+    }
+
+    return pathname;
+  } catch (err) {
+    return null;
+  }
+};

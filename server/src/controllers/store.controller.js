@@ -4,6 +4,7 @@ import { createNameSpaceAndBuildStore, deleteNameSpace, deployMedusaStoreFront }
 import { getStoreAdminUrl, getStoreDomain } from '../utils/helper.js';
 import { MAX_STORE_FREE_LIMIT, PROHIBITED_SLUG } from '../utils/constant.js';
 import { PROTOCOL } from '../config/env.js';
+import Chat from '../models/chat.model.js';
 
 
 
@@ -137,6 +138,7 @@ export const deleteStore = async (req, res) => {
       try {
         await deleteNameSpace(store.namespace);
         await Store.findByIdAndDelete(storeId);
+        await Chat.findOneAndDelete({ storeId });
       } catch (err) {
         console.error(`[Background] Delete Failed for ${store.name}:`, err);
         await Store.findByIdAndUpdate(storeId, {
