@@ -4,7 +4,14 @@ metadata:
   name: {{ .Release.Name }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    # SSL toggle (if needed later)
+    # Using specific header control instead of a raw snippet
+    nginx.ingress.kubernetes.io/proxy-add-header: "Content-Security-Policy 'frame-ancestors *;'"
+    
+    {{- if .Values.ingress.customDomain }}
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    {{- end }}
+
+   
     {{- if .Values.ingress.customDomain }}
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     {{- end }}

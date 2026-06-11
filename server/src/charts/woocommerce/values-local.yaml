@@ -26,10 +26,10 @@ wordpressUsername: "admin"
 wordpressPassword: "password123"
 wordpressEmail: "admin@example.com"
 
-resources: 
-  limits:
-    cpu: 500m
-    memory: 512Mi
+resources:
   requests:
-    cpu: 200m
-    memory: 256Mi
+    cpu: "300m"
+    memory: "512Mi"
+  limits:
+    cpu: "1000m"
+    memory: "1Gi"

@@ -238,6 +238,8 @@ const StoreTable = ({ stores, onDelete, isLoading, isDeleting,fetchStores }) => 
                                 store.name
                               )}&url=${encodeURIComponent(
                                 store.storeUrl
+                              )}&storeId=${encodeURIComponent(
+                                store._id
                               )}`
                             )
                           }

@@ -125,3 +125,17 @@
 .animate-float {
   animation: floatY 1.8s ease-in-out infinite;
 }
+
+.hide-scrollbar {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;   
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;           
+}
+
+.hide-scrollbar::-webkit-scrollbar:horizontal {
+  display: none;
+}
+
