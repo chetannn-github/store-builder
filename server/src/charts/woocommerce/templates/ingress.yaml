@@ -4,12 +4,11 @@ metadata:
   name: {{ .Release.Name }}
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      proxy_hide_header X-Frame-Options;
-      proxy_hide_header Content-Security-Policy;
-      add_header Content-Security-Policy "frame-ancestors *;" always;
-      add_header X-Frame-Options "ALLOWALL" always;
-    
+    nginx.ingress.kubernetes.io/configuration-snippet: "" 
+    nginx.ingress.kubernetes.io/proxy-hide-headers: "X-Frame-Options, Content-Security-Policy"
+    nginx.ingress.kubernetes.io/proxy-add-headers: |
+      Content-Security-Policy "frame-ancestors *;" always,
+      X-Frame-Options "ALLOWALL" always
     {{- if .Values.ingress.customDomain }}
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
     {{- end }}
